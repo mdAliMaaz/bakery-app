@@ -1,0 +1,92 @@
+'use client';
+
+import { SelectHTMLAttributes, forwardRef } from 'react';
+
+interface PremiumSelectProps extends SelectHTMLAttributes<HTMLSelectElement> {
+    label?: string;
+    error?: string;
+    helperText?: string;
+    options: Array<{ value: string; label: string }>;
+    leftIcon?: React.ReactNode;
+}
+
+const PremiumSelect = forwardRef<HTMLSelectElement, PremiumSelectProps>(
+    ({ label, error, helperText, options, leftIcon, className = '', ...props }, ref) => {
+        return (
+            <div className="w-full">
+                {label && (
+                    <label className="block text-sm font-medium text-foreground mb-2">
+                        {label}
+                    </label>
+                )}
+
+                <div className="relative">
+                    {leftIcon && (
+                        <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground pointer-events-none">
+                            {leftIcon}
+                        </div>
+                    )}
+
+                    <select
+                        ref={ref}
+                        className={`
+              w-full
+              px-4
+              ${leftIcon ? 'pl-10' : ''}
+              py-3
+              bg-input
+              border
+              ${error ? 'border-red-500' : 'border-border'}
+              rounded-lg
+              text-foreground
+              appearance-none
+              cursor-pointer
+              transition-all
+              duration-200
+              focus:outline-none
+              focus:ring-2
+              ${error ? 'focus:ring-red-500' : 'focus:ring-primary'}
+              focus:ring-offset-2
+              ${className}
+            `}
+                        {...props}
+                    >
+                        {options.map((option) => (
+                            <option key={option.value} value={option.value}>
+                                {option.label}
+                            </option>
+                        ))}
+                    </select>
+
+                    <div className="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none">
+                        <svg
+                            className="w-5 h-5 text-muted-foreground"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                        >
+                            <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M19 9l-7 7-7-7"
+                            />
+                        </svg>
+                    </div>
+                </div>
+
+                {error && (
+                    <p className="mt-1 text-sm text-red-500 animate-fade-in">{error}</p>
+                )}
+
+                {helperText && !error && (
+                    <p className="mt-1 text-sm text-muted-foreground">{helperText}</p>
+                )}
+            </div>
+        );
+    }
+);
+
+PremiumSelect.displayName = 'PremiumSelect';
+
+export default PremiumSelect;

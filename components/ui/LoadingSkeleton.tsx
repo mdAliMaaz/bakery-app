@@ -54,7 +54,7 @@ export default function LoadingSkeleton({
 
 export function CardSkeleton() {
     return (
-        <div className="bg-card border border-border rounded-xl p-6 shadow-md">
+        <div className="bg-card border border-border p-6 shadow-md">
             <LoadingSkeleton variant="text" height="1.5rem" width="60%" className="mb-4" />
             <LoadingSkeleton variant="text" lines={3} className="mb-4" />
             <LoadingSkeleton variant="rectangular" height="2rem" width="40%" />

@@ -13,15 +13,33 @@ export default function ProtectedRoute({ children, allowedRoles }: ProtectedRout
     const { user, isLoading } = useAuth();
     const router = useRouter();
 
+    console.log('ProtectedRoute render:', {
+        isLoading,
+        hasUser: !!user,
+        userRole: user?.role,
+        allowedRoles
+    });
+
     useEffect(() => {
+        console.log('ProtectedRoute useEffect triggered:', {
+            isLoading,
+            hasUser: !!user,
+            userRole: user?.role
+        });
+
         if (!isLoading && !user) {
+            console.log('ProtectedRoute: No user, redirecting to login');
             router.push('/auth/login');
         } else if (!isLoading && user && allowedRoles && !allowedRoles.includes(user.role)) {
+            console.log('ProtectedRoute: User role not allowed, redirecting to dashboard');
             router.push('/dashboard');
+        } else if (!isLoading && user) {
+            console.log('ProtectedRoute: User authenticated, allowing access');
         }
     }, [user, isLoading, allowedRoles, router]);
 
     if (isLoading) {
+        console.log('ProtectedRoute: Still loading, showing loading screen');
         return (
             <div className="min-h-screen flex items-center justify-center">
                 <div className="text-center">
@@ -33,6 +51,7 @@ export default function ProtectedRoute({ children, allowedRoles }: ProtectedRout
     }
 
     if (!user) {
+        console.log('ProtectedRoute: No user after loading, returning null');
         return null;
     }
 

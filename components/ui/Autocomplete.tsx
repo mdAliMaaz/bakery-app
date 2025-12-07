@@ -46,6 +46,7 @@ export default function Autocomplete({
         option.label.toLowerCase().includes(value.toLowerCase())
     );
 
+
     // Reset highlighted index when options change
     useEffect(() => {
         setHighlightedIndex(-1);
@@ -147,15 +148,19 @@ export default function Autocomplete({
                     placeholder={placeholder}
                     disabled={disabled}
                     className={`
-                        w-full px-4 py-4 pr-12 bg-input border rounded-xl text-foreground
+                        w-full px-4 py-3 pr-12 bg-input border rounded-lg text-foreground
                         placeholder:text-muted-foreground focus:outline-none focus:ring-2
-                        transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed
+                        transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed
                         ${error
                             ? 'border-red-500 focus:ring-red-500'
-                            : 'border-border/50 focus:ring-primary/50 focus:border-primary'
+                            : 'border-border focus:ring-primary focus:border-primary'
                         }
-                        shadow-sm hover:shadow-md
                     `}
+                    style={{
+                        backgroundColor: 'var(--input)',
+                        borderColor: error ? '#ef4444' : 'var(--border)',
+                        color: 'var(--foreground)'
+                    }}
                 />
 
                 {/* Right side buttons */}
@@ -201,27 +206,28 @@ export default function Autocomplete({
             {isOpen && filteredOptions.length > 0 && (
                 <ul
                     ref={listRef}
-                    className="absolute z-50 w-full mt-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-xl shadow-2xl max-h-60 overflow-y-auto backdrop-blur-xl"
-                    style={{
-                        backgroundColor: 'rgba(255, 255, 255, 1)',
-                        border: '2px solid #d1d5db'
-                    }}
+                    className="absolute z-[100] w-full mt-2 bg-card border-2 border-primary/30 shadow-2xl max-h-[400px] overflow-y-auto"
+                    style={{ backgroundColor: 'var(--card)', borderColor: 'var(--primary)', opacity: 0.98 }}
                 >
                     {filteredOptions.map((option, index) => (
                         <li
                             key={option.value}
                             onClick={() => handleSelect(option)}
                             className={`
-                                px-4 py-3 cursor-pointer transition-colors duration-150 flex items-center justify-between
+                                px-6 py-5 cursor-pointer transition-all duration-200 flex items-center justify-between text-base font-medium
                                 ${index === highlightedIndex
-                                    ? 'bg-blue-600 text-white'
-                                    : 'hover:bg-gray-100 text-gray-900'
+                                    ? 'bg-primary text-primary-foreground shadow-lg scale-[1.02]'
+                                    : 'hover:bg-muted/80 hover:shadow-md text-foreground hover:scale-[1.01]'
                                 }
                             `}
+                            style={index === highlightedIndex ? {
+                                backgroundColor: 'var(--primary)',
+                                color: 'var(--primary-foreground)'
+                            } : undefined}
                         >
-                            <span className="truncate">{option.label}</span>
+                            <span className="truncate text-lg font-semibold">{option.label}</span>
                             {index === highlightedIndex && (
-                                <Check className="w-4 h-4 text-primary flex-shrink-0 ml-2" />
+                                <Check className="w-6 h-6 text-primary-foreground flex-shrink-0 ml-3" />
                             )}
                         </li>
                     ))}
@@ -230,10 +236,10 @@ export default function Autocomplete({
 
             {/* No results */}
             {isOpen && filteredOptions.length === 0 && (
-                <div className="absolute z-50 w-full mt-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-xl shadow-2xl p-4 text-center text-muted-foreground backdrop-blur-xl"
-                     style={{
-                         backgroundColor: 'rgba(255, 255, 255, 1)'
-                     }}>
+                <div
+                    className="absolute z-[100] w-full mt-2 bg-card border-2 border-primary/30 shadow-2xl p-6 text-center text-muted-foreground text-lg"
+                    style={{ backgroundColor: 'var(--card)', borderColor: 'var(--primary)', opacity: 0.98 }}
+                >
                     {value ? 'No matching items found' : 'No items available'}
                 </div>
             )}

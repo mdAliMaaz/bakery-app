@@ -44,7 +44,7 @@ interface DashboardStats {
 }
 
 export default function DashboardPage() {
-    const { accessToken, user } = useAuth();
+    const { accessToken, user, isLoading: authLoading } = useAuth();
     const api = useApi();
     const [stats, setStats] = useState<DashboardStats | null>(null);
     const [loading, setLoading] = useState(true);
@@ -53,8 +53,10 @@ export default function DashboardPage() {
     const [activeTab, setActiveTab] = useState<'overview' | 'inventory' | 'sales' | 'orders' | 'recipes'>('overview');
 
     const fetchStats = async () => {
+        console.log('fetchStats called, API client configured:', !!api);
         try {
             const data = await api.get(`/api/dashboard/stats?period=${period}`);
+            console.log('fetchStats successful:', data);
             setStats(data);
         } catch (error) {
             console.error('Error fetching stats:', error);
@@ -64,44 +66,52 @@ export default function DashboardPage() {
     };
 
     useEffect(() => {
+        if (!authLoading && user && accessToken) {
+            console.log('Auth ready, calling fetchStats');
             fetchStats();
-    }, [period]);
+        } else {
+            console.log('Auth not ready yet:', { authLoading, hasUser: !!user, hasToken: !!accessToken });
+        }
+    }, [period, authLoading, user, accessToken]);
 
     // SSE Connection for real-time updates
     useEffect(() => {
-        const eventSource = new EventSource(`/api/sse`, {
-            withCredentials: false,
-        });
+        if (!authLoading && user && accessToken) {
+            console.log('Auth ready, connecting to SSE');
+            const eventSource = new EventSource(`/api/sse`, {
+                withCredentials: false,
+            });
 
-        eventSource.onopen = () => {
-            setSseStatus('connected');
-            console.log('SSE Connected');
-        };
+            eventSource.onopen = () => {
+                setSseStatus('connected');
+                console.log('SSE Connected');
+            };
 
-        eventSource.onmessage = (event) => {
-            try {
-                const data = JSON.parse(event.data);
-                console.log('SSE Event:', data);
+            eventSource.onmessage = (event) => {
+                try {
+                    const data = JSON.parse(event.data);
+                    console.log('SSE Event:', data);
 
-                if (data.type === 'inventory-update' || data.type === 'low-stock-alert' || data.type === 'order-update') {
-                    fetchStats();
+                    if (data.type === 'inventory-update' || data.type === 'low-stock-alert' || data.type === 'order-update') {
+                        fetchStats();
+                    }
+                } catch (error) {
+                    console.error('Error parsing SSE data:', error);
                 }
-            } catch (error) {
-                console.error('Error parsing SSE data:', error);
-            }
-        };
+            };
 
-        eventSource.onerror = () => {
-            setSseStatus('error');
-            console.error('SSE Error');
-            eventSource.close();
-        };
+            eventSource.onerror = () => {
+                setSseStatus('error');
+                console.error('SSE Error');
+                eventSource.close();
+            };
 
-        return () => {
-            eventSource.close();
-            setSseStatus('disconnected');
-        };
-    }, []);
+            return () => {
+                eventSource.close();
+                setSseStatus('disconnected');
+            };
+        }
+    }, [authLoading, user, accessToken]);
 
     const exportToCSV = (data: any[], filename: string) => {
         if (data.length === 0) {
@@ -183,11 +193,12 @@ export default function DashboardPage() {
     return (
         <ProtectedRoute allowedRoles={['Admin', 'Staff', 'Viewer']}>
             <AppLayout>
+                    
                     {/* Hero Section */}
-                    <div className="mb-8 animate-slide-up">
+                    <div className="mb-8">
                         <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
                             <div>
-                                <h1 className="text-4xl font-bold text-foreground mb-2 flex items-center gap-2">
+                                <h1 className="text-6xl font-bold text-muted-foreground mb-3 flex items-center gap-3">
                                     Welcome back, {user?.name?.split(' ')[0] || 'User'}!
                                     <Hand className="w-8 h-8 text-primary" />
                                 </h1>
@@ -217,39 +228,39 @@ export default function DashboardPage() {
 
                         {/* Summary Cards */}
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                            <div className="bg-card border border-border/50 rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-500 transform hover:scale-[1.02] hover:-translate-y-1">
+                            <div className="colorful-card p-8 shadow-xl">
                                 <div className="flex items-center justify-between mb-2">
-                                    <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">Total Inventory</h3>
+                                    <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-1">Total Inventory</h3>
                                     <Package className="w-6 h-6 text-primary" />
                                 </div>
-                                <p className="text-3xl font-bold text-foreground">{stats.inventory.total}</p>
+                                <p className="text-5xl font-bold cyberpunk-text-secondary">{stats.inventory.total}</p>
                                 <p className="text-xs text-muted-foreground mt-2">Items in stock</p>
                             </div>
 
-                            <div className="bg-card border border-border/50 rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-500 transform hover:scale-[1.02] hover:-translate-y-1">
+                            <div className="colorful-card p-8 shadow-xl">
                                 <div className="flex items-center justify-between mb-2">
-                                    <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">Low Stock</h3>
+                                    <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-1">Low Stock</h3>
                                     <AlertTriangle className="w-6 h-6 text-red-600 dark:text-red-400" />
                                 </div>
-                                <p className="text-3xl font-bold text-red-600 dark:text-red-400">{stats.inventory.lowStock}</p>
+                                <p className="text-5xl font-bold cyberpunk-text-secondary">{stats.inventory.lowStock}</p>
                                 <p className="text-xs text-muted-foreground mt-2">Items need attention</p>
                             </div>
 
-                            <div className="bg-card border border-border/50 rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-500 transform hover:scale-[1.02] hover:-translate-y-1">
+                            <div className="colorful-card p-8 shadow-xl">
                                 <div className="flex items-center justify-between mb-2">
-                                    <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">Total Orders</h3>
+                                    <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-1">Total Orders</h3>
                                     <FileText className="w-6 h-6 text-secondary" />
                                 </div>
-                                <p className="text-3xl font-bold text-foreground">{stats.orders.total}</p>
+                                <p className="text-5xl font-bold cyberpunk-text-primary">{stats.orders.total}</p>
                                 <p className="text-xs text-muted-foreground mt-2">All time orders</p>
                             </div>
 
-                            <div className="bg-card border border-border/50 rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-500 transform hover:scale-[1.02] hover:-translate-y-1">
+                            <div className="colorful-card p-8 shadow-xl">
                                 <div className="flex items-center justify-between mb-2">
-                                    <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">Completed ({period})</h3>
+                                    <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-1">Completed ({period})</h3>
                                     <CheckCircle2 className="w-6 h-6 text-green-600 dark:text-green-400" />
                                 </div>
-                                <p className="text-3xl font-bold text-green-600 dark:text-green-400">{stats.orders.completedInPeriod}</p>
+                                <p className="text-5xl font-bold cyberpunk-text-secondary">{stats.orders.completedInPeriod}</p>
                                 <p className="text-xs text-muted-foreground mt-2">Orders delivered</p>
                             </div>
                         </div>
@@ -285,8 +296,8 @@ export default function DashboardPage() {
                         {activeTab === 'overview' && (
                             <div className="space-y-6">
                                 {/* Sales Trend Chart */}
-                                <div className="bg-card border border-border/50 rounded-2xl p-8 shadow-lg">
-                                    <h3 className="text-lg font-semibold text-foreground mb-4">Sales Trend (Last 30 Days)</h3>
+                                <div className="colorful-card p-8 shadow-xl">
+                                    <h3 className="text-xl font-bold text-foreground mb-6">Sales Trend (Last 30 Days)</h3>
                                     <SalesCharts
                                         salesData={stats.trends.sales}
                                         salesByRecipe={stats.trends.salesByRecipe}
@@ -295,8 +306,8 @@ export default function DashboardPage() {
                                 </div>
 
                                 {/* Orders by Status */}
-                                <div className="bg-card border border-border/50 rounded-2xl p-8 shadow-lg">
-                                    <h3 className="text-lg font-semibold text-foreground mb-4">Orders by Status</h3>
+                                <div className="colorful-card p-8 shadow-xl">
+                                    <h3 className="text-xl font-bold text-foreground mb-6">Orders by Status</h3>
                                     <OrderCharts
                                         ordersByStatus={stats.orders.byStatus}
                                         orderTrends={stats.orders.trends}
@@ -306,7 +317,7 @@ export default function DashboardPage() {
 
                                 {/* Low Stock Alert */}
                                 {stats.inventory.lowStock > 0 && (
-                                    <div className="bg-gradient-to-r from-red-50 to-red-100 dark:from-red-900/20 dark:to-red-800/20 border border-red-200 dark:border-red-800 rounded-xl p-6 mb-8">
+                                    <div className="bg-gradient-to-r from-red-50 to-red-100 dark:from-red-900/20 dark:to-red-800/20 border border-red-200 dark:border-red-800 p-8 mb-8 shadow-xl">
                                         <div className="flex justify-between items-start mb-4">
                                             <div>
                                                 <h3 className="text-lg font-semibold text-red-900 dark:text-red-200 mb-1 flex items-center gap-2">
@@ -327,7 +338,7 @@ export default function DashboardPage() {
                                         </div>
                                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                                             {stats.inventory.lowStockItems.map((item, idx) => (
-                                                <div key={idx} className="bg-card p-4 rounded-lg border border-red-200 dark:border-red-800">
+                                                <div key={idx} className="bg-card p-4 rounded-xl border border-red-200 dark:border-red-800 shadow-md">
                                                     <p className="font-medium text-foreground">{item.name}</p>
                                                     <p className="text-sm text-muted-foreground">
                                                         Current: {item.currentStock} {item.unit} | Threshold: {item.thresholdValue} {item.unit}
@@ -339,7 +350,7 @@ export default function DashboardPage() {
                                 )}
 
                                 {/* Recent Orders */}
-                                <div className="bg-card border border-border/50 rounded-2xl p-8 shadow-lg">
+                                <div className="colorful-card p-8 shadow-xl">
                                     <div className="flex justify-between items-center mb-4">
                                         <h3 className="text-lg font-semibold text-foreground">Recent Orders</h3>
                                         <PremiumButton

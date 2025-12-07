@@ -18,7 +18,7 @@ export interface TokenPair {
 
 export const generateAccessToken = (payload: JWTPayload): string => {
   return jwt.sign(payload, JWT_SECRET, {
-    expiresIn: "15m",
+    expiresIn: "1h", // Temporarily set to 1 hour for testing
   });
 };
 

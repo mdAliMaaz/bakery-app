@@ -79,7 +79,7 @@ export default function LoginPage() {
 
                     {/* Right Side - Login Form */}
                     <div className="w-full max-w-md mx-auto animate-scale-in">
-                        <div className="bg-card border border-border/50 rounded-3xl p-10 shadow-2xl backdrop-blur-xl">
+                        <div className="bg-card border border-border p-8 shadow-xl">
                             <div className="text-center mb-8">
                                 <div className="w-16 h-16 mx-auto mb-4 rounded-xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center shadow-lg">
                                     <Package className="w-8 h-8 text-white" />
@@ -105,7 +105,7 @@ export default function LoginPage() {
                                     required
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
-                                    placeholder="Enter your email"
+                                   
                                     leftIcon={<Mail className="w-5 h-5" />}
                                 />
 
@@ -115,7 +115,7 @@ export default function LoginPage() {
                                     required
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
-                                    placeholder="Enter your password"
+                                   
                                     leftIcon={<Lock className="w-5 h-5" />}
                                 />
 

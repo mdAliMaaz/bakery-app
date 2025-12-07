@@ -23,7 +23,6 @@ export default function PremiumChartContainer({
         bg-card
         border
         border-border
-        rounded-xl
         p-6
         shadow-md
         hover:shadow-lg

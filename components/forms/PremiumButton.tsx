@@ -12,12 +12,12 @@ interface PremiumButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 const variantClasses = {
-    primary: 'bg-primary text-primary-foreground hover:bg-primary/90 hover:shadow-lg hover:shadow-primary/25 transform hover:scale-[1.02] active:scale-[0.98]',
-    secondary: 'bg-secondary text-secondary-foreground hover:bg-secondary/90 hover:shadow-lg hover:shadow-secondary/25 transform hover:scale-[1.02] active:scale-[0.98]',
-    accent: 'bg-accent text-accent-foreground hover:bg-accent/90 hover:shadow-lg hover:shadow-accent/25 transform hover:scale-[1.02] active:scale-[0.98]',
-    outline: 'border-2 border-primary text-primary hover:bg-primary hover:text-primary-foreground hover:shadow-lg transform hover:scale-[1.02] active:scale-[0.98]',
-    ghost: 'hover:bg-muted text-foreground hover:shadow-sm transform hover:scale-[1.01] active:scale-[0.99]',
-    danger: 'bg-red-500 text-white hover:bg-red-600 hover:shadow-lg hover:shadow-red-500/25 transform hover:scale-[1.02] active:scale-[0.98]',
+    primary: 'bg-gradient-to-r from-sky-500 to-sky-600 text-white hover:shadow-xl hover:shadow-sky-500/40 hover:scale-[1.02] active:scale-[0.98] border border-sky-400/30 transition-all duration-200',
+    secondary: 'bg-gradient-to-r from-orange-500 to-orange-600 text-white hover:shadow-xl hover:shadow-orange-500/40 hover:scale-[1.02] active:scale-[0.98] border border-orange-400/30 transition-all duration-200',
+    accent: 'bg-gradient-to-r from-violet-500 to-violet-600 text-white hover:shadow-xl hover:shadow-violet-500/40 hover:scale-[1.02] active:scale-[0.98] border border-violet-400/30 transition-all duration-200',
+    outline: 'border-2 border-green-500 text-green-600 dark:text-green-400 hover:bg-green-500 hover:text-white hover:shadow-xl hover:shadow-green-500/40 hover:scale-[1.02] active:scale-[0.98] bg-card transition-all duration-200',
+    ghost: 'text-pink-600 dark:text-pink-400 hover:bg-pink-50 dark:hover:bg-pink-900/20 hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] bg-card/50 transition-all duration-200',
+    danger: 'bg-gradient-to-r from-red-500 to-red-600 text-white hover:shadow-xl hover:shadow-red-500/40 hover:scale-[1.02] active:scale-[0.98] border border-red-400/30 transition-all duration-200',
 };
 
 const sizeClasses = {
@@ -40,24 +40,21 @@ export default function PremiumButton({
     return (
         <button
             className={`
-        relative
+        relative overflow-hidden
         ${variantClasses[variant]}
         ${sizeClasses[size]}
         font-semibold
-        rounded-xl
         transition-all
         duration-300
-        ease-out
         focus:outline-none
         focus:ring-2
         focus:ring-primary/50
         focus:ring-offset-2
         disabled:opacity-50
         disabled:cursor-not-allowed
-        disabled:transform-none
-        disabled:cursor-not-allowed
         disabled:hover:scale-100
         disabled:hover:shadow-none
+        before:absolute before:inset-0 before:bg-white/10 before:opacity-0 hover:before:opacity-100 before:transition-opacity before:duration-300
         ${className}
       `}
             disabled={disabled || isLoading}

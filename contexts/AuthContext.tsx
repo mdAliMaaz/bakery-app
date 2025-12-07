@@ -3,6 +3,7 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
 import { apiClient } from '@/lib/auth/apiClient';
+import { verifyAccessToken } from '@/lib/auth/jwt';
 
 interface User {
     id: string;
@@ -55,18 +56,56 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }, [accessToken, refreshToken]);
 
     useEffect(() => {
-        // Load tokens from localStorage
+        const loadTokens = async () => {
+            try {
         const storedAccessToken = localStorage.getItem('accessToken');
         const storedRefreshToken = localStorage.getItem('refreshToken');
         const storedUser = localStorage.getItem('user');
 
-        if (storedAccessToken && storedUser) {
+                console.log('Loading tokens from localStorage:', {
+                    hasAccessToken: !!storedAccessToken,
+                    hasRefreshToken: !!storedRefreshToken,
+                    hasUser: !!storedUser
+                });
+
+                // Always try to load tokens if they exist, even if expired
+                // The API client will handle refresh automatically
+                if (storedAccessToken && storedRefreshToken && storedUser) {
+                    try {
+                        console.log('Setting tokens from localStorage');
+                        console.log('Access token exists:', !!storedAccessToken);
+                        console.log('Refresh token exists:', !!storedRefreshToken);
+                        console.log('User data exists:', !!storedUser);
+
             setAccessToken(storedAccessToken);
             setRefreshToken(storedRefreshToken);
             setUser(JSON.parse(storedUser));
+                        console.log('Tokens successfully loaded from localStorage');
+                    } catch (parseError) {
+                        console.error('Error parsing stored user data:', parseError);
+                        // Clear corrupted data
+                        localStorage.removeItem('accessToken');
+                        localStorage.removeItem('refreshToken');
+                        localStorage.removeItem('user');
+                    }
+                } else {
+                    console.log('No stored tokens found in localStorage');
+                    console.log('Access token:', !!storedAccessToken);
+                    console.log('Refresh token:', !!storedRefreshToken);
+                    console.log('User:', !!storedUser);
+                }
+            } catch (error) {
+                console.error('Error loading tokens from localStorage:', error);
+                // Clear potentially corrupted data
+                localStorage.removeItem('accessToken');
+                localStorage.removeItem('refreshToken');
+                localStorage.removeItem('user');
         }
 
         setIsLoading(false);
+        };
+
+        loadTokens();
     }, []);
 
     const login = async (email: string, password: string) => {
@@ -158,6 +197,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     };
 
     const logout = () => {
+        console.log('LOGOUT CALLED - Clearing user session');
+        console.log('Previous state:', {
+            hadUser: !!user,
+            hadAccessToken: !!accessToken,
+            hadRefreshToken: !!refreshToken
+        });
+
         setUser(null);
         setAccessToken(null);
         setRefreshToken(null);
@@ -166,6 +212,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         localStorage.removeItem('refreshToken');
         localStorage.removeItem('user');
 
+        console.log('User session cleared, redirecting to login');
         router.push('/auth/login');
     };
 

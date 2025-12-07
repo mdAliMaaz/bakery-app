@@ -72,14 +72,25 @@ export default function Sidebar({ isOpen, onClose }: { isOpen: boolean; onClose:
 
             {/* Sidebar */}
             <div className={`
-                fixed top-0 left-0 z-50 h-screen bg-card border-r border-border/50
-                transform transition-all duration-500 ease-out shadow-xl backdrop-blur-xl
+                fixed top-0 left-0 z-50 h-screen bg-card 
+                transform transition-all duration-300 ease-in-out shadow-2xl 
                 ${isOpen ? 'translate-x-0' : '-translate-x-full'}
                 lg:translate-x-0
                 ${isCollapsed ? 'lg:w-20' : 'lg:w-72 w-80'}
                 w-80
             `}>
-                <div className="flex flex-col h-full">
+                <div className="flex flex-col h-full relative">
+                    {/* Subtle Colorful Pattern */}
+                    <div className="absolute inset-0 opacity-2 dark:opacity-3 pointer-events-none">
+                        <div className="w-full h-full" style={{
+                            backgroundImage: `
+                                radial-gradient(circle at 20% 80%, rgba(59, 130, 246, 0.1) 0%, transparent 50%),
+                                radial-gradient(circle at 80% 20%, rgba(139, 92, 246, 0.1) 0%, transparent 50%),
+                                radial-gradient(circle at 40% 40%, rgba(245, 158, 11, 0.1) 0%, transparent 50%)
+                            `,
+                            backgroundSize: '150px 150px'
+                        }}></div>
+                    </div>
                     {/* Header */}
                     <div className="flex items-center justify-between p-4 border-b border-border">
                         <Link
@@ -188,7 +199,7 @@ export default function Sidebar({ isOpen, onClose }: { isOpen: boolean; onClose:
 
                             {/* User Dropdown */}
                             {isUserMenuOpen && (
-                                <div className={`absolute bottom-full mb-2 bg-card border border-border/50 rounded-2xl shadow-2xl py-3 animate-scale-in z-50 backdrop-blur-xl ${isCollapsed ? 'lg:left-20 lg:right-auto lg:w-64' : 'left-0 right-0'}`}>
+                                <div className={`absolute bottom-full mb-2 bg-card border border-border shadow-xl py-2 animate-scale-in z-50 ${isCollapsed ? 'lg:left-20 lg:right-auto lg:w-64' : 'left-0 right-0'}`}>
                                     <div className="px-4 py-3 border-b border-border">
                                         <p className="text-sm font-semibold text-foreground">{user?.name}</p>
                                         <p className="text-xs text-muted-foreground mt-1">{user?.email}</p>

@@ -59,7 +59,7 @@ const PremiumInput = forwardRef<HTMLInputElement, PremiumInputProps>(
               bg-input
               border
               ${error ? 'border-red-500' : isFocused ? 'border-primary' : 'border-border'}
-              rounded-xl
+              rounded-lg
               text-foreground
               ${label ? 'placeholder:text-transparent' : 'placeholder:text-muted-foreground'}
               transition-all

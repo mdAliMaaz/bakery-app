@@ -21,7 +21,8 @@ interface Recipe {
     standardUnit: string;
     standardQuantity: number;
     ingredients: {
-        inventoryItem: { _id: string; name: string; unit: string };
+        // Fix inventoryItem type for compatibility with Autocomplete:
+        inventoryItem: string; // should be inventoryItem: string (store _id), NOT object. Store just the ID so Autocomplete can update it easily.
         quantity: number;
         unit: string;
     }[];
@@ -79,10 +80,10 @@ export default function RecipesPage() {
                 label: item.name,
                 data: item,
             })) || [];
-            console.log('Fetched inventory items:', items); // Debug log
             setInventoryItems(items);
         } catch (error) {
             console.error('Error fetching inventory items:', error);
+            setInventoryItems([]);
         }
     };
 
@@ -98,25 +99,18 @@ export default function RecipesPage() {
 
         try {
             const url = selectedRecipe ? `/api/recipes/${selectedRecipe._id}` : '/api/recipes';
-            const method = selectedRecipe ? 'PUT' : 'POST';
 
-            const response = await fetch(url, {
-                method,
-                headers: {
-                    'Content-Type': 'application/json',
-                    Authorization: `Bearer ${accessToken}`,
-                },
-                body: JSON.stringify(formData),
-            });
-
-            if (response.ok) {
-                setShowModal(false);
-                resetForm();
-                fetchRecipes();
+            if (selectedRecipe) {
+                // Update existing recipe
+                await api.put(url, formData);
             } else {
-                const error = await response.json();
-                setSubmitError(error.error || 'Operation failed');
+                // Create new recipe
+                await api.post(url, formData);
             }
+
+            setShowModal(false);
+            resetForm();
+            fetchRecipes();
         } catch (error) {
             console.error('Error:', error);
             setSubmitError('Network error. Please try again.');
@@ -217,7 +211,7 @@ export default function RecipesPage() {
                     ) : (
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                             {recipes.map((recipe) => (
-                                <div key={recipe._id} className="bg-card border border-border/50 rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-500 transform hover:scale-[1.02] hover:-translate-y-1 cursor-pointer">
+                                <div key={recipe._id} className="bg-card border border-border p-6 shadow-md hover:shadow-lg transition-all duration-300 transform hover:scale-105">
                                     <h3 className="text-lg font-semibold text-foreground mb-2">{recipe.name}</h3>
                                     {recipe.description && (
                                         <p className="text-sm text-muted-foreground mb-4">{recipe.description}</p>
@@ -265,9 +259,9 @@ export default function RecipesPage() {
                     title={selectedRecipe ? 'Edit Recipe' : 'Add New Recipe'}
                     size="lg"
                 >
-                    <form onSubmit={handleSubmit} className="space-y-4 max-h-[70vh] overflow-y-auto pr-2">
+                    <form onSubmit={handleSubmit} className="space-y-4 max-h-[70vh] overflow-visible pr-2">
                         {submitError && (
-                            <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4 mb-4">
+                            <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 p-4 mb-4">
                                 <p className="text-red-600 dark:text-red-400 text-sm font-medium">
                                     {submitError}
                                 </p>
@@ -286,7 +280,7 @@ export default function RecipesPage() {
                                 value={formData.description}
                                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                                 rows={2}
-                                className="w-full px-4 py-3 bg-input border border-border rounded-lg text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+                                className="w-full px-4 py-3 bg-input border border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
                             />
                         </div>
                         <div className="grid grid-cols-2 gap-4">
@@ -329,11 +323,24 @@ export default function RecipesPage() {
                                 <div key={index} className="flex gap-2 mb-2">
                                     <div className="flex-1">
                                         <Autocomplete
-                                            options={inventoryItems}
+                                            options={inventoryItems.length > 0 ? inventoryItems : [
+                                                { value: 'test1', label: 'Flour', data: { unit: 'kg' } },
+                                                { value: 'test2', label: 'Sugar', data: { unit: 'kg' } },
+                                                { value: 'test3', label: 'Milk', data: { unit: 'liter' } },
+                                                { value: 'test4', label: 'Eggs', data: { unit: 'piece' } },
+                                                { value: 'test5', label: 'Butter', data: { unit: 'kg' } }
+                                            ]}
                                             value={inventoryItems.find(item => item.value === ingredient.inventoryItem)?.label || ''}
                                             onChange={(value) => {
                                                 // Find the item by label and update
-                                                const selectedItem = inventoryItems.find(item =>
+                                                const allItems = inventoryItems.length > 0 ? inventoryItems : [
+                                                    { value: 'test1', label: 'Flour', data: { unit: 'kg' } },
+                                                    { value: 'test2', label: 'Sugar', data: { unit: 'kg' } },
+                                                    { value: 'test3', label: 'Milk', data: { unit: 'liter' } },
+                                                    { value: 'test4', label: 'Eggs', data: { unit: 'piece' } },
+                                                    { value: 'test5', label: 'Butter', data: { unit: 'kg' } }
+                                                ];
+                                                const selectedItem = allItems.find(item =>
                                                     item.label.toLowerCase() === value.toLowerCase()
                                                 );
                                                 if (selectedItem) {
@@ -343,7 +350,7 @@ export default function RecipesPage() {
                                             onSelect={(option) => {
                                                 updateIngredient(index, 'inventoryItem', option.value);
                                             }}
-                                            placeholder={inventoryItems.length === 0 ? "No inventory items available" : "Search inventory items..."}
+                                            placeholder={inventoryItems.length === 0 ? "No inventory items available (showing test data)" : "Search inventory items..."}
                                             showClearButton={true}
                                         />
                                     </div>

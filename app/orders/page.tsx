@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
+import { useApi } from '@/hooks/useApi';
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
 import AppLayout from '@/components/layout/AppLayout';
 import PremiumModal from '@/components/ui/PremiumModal';
@@ -65,6 +66,7 @@ const statusColors: Record<string, { bg: string; text: string }> = {
 
 export default function OrdersPage() {
     const { accessToken } = useAuth();
+    const api = useApi();
     const [orders, setOrders] = useState<Order[]>([]);
     const [recipes, setRecipes] = useState<Recipe[]>([]);
     const [loading, setLoading] = useState(true);
@@ -84,10 +86,7 @@ export default function OrdersPage() {
 
     const fetchOrders = async () => {
         try {
-            const response = await fetch('/api/orders', {
-                headers: { Authorization: `Bearer ${accessToken}` },
-            });
-            const data = await response.json();
+            const data = await api.get('/api/orders');
             setOrders(data.orders || []);
         } catch (error) {
             console.error('Error fetching orders:', error);
@@ -96,10 +95,7 @@ export default function OrdersPage() {
 
     const fetchRecipes = async () => {
         try {
-            const response = await fetch('/api/recipes', {
-                headers: { Authorization: `Bearer ${accessToken}` },
-            });
-            const data = await response.json();
+            const data = await api.get('/api/recipes');
             setRecipes(data.recipes || []);
         } catch (error) {
             console.error('Error fetching recipes:', error);
@@ -109,33 +105,19 @@ export default function OrdersPage() {
     };
 
     useEffect(() => {
-        if (accessToken) {
             fetchOrders();
             fetchRecipes();
-        }
-    }, [accessToken]);
+    }, []);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
         try {
-            const response = await fetch('/api/orders', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    Authorization: `Bearer ${accessToken}`,
-                },
-                body: JSON.stringify(formData),
-            });
+            await api.post('/api/orders', formData);
 
-            if (response.ok) {
                 setShowModal(false);
                 resetForm();
                 fetchOrders();
-            } else {
-                const error = await response.json();
-                alert(error.error || 'Operation failed');
-            }
         } catch (error) {
             console.error('Error:', error);
             alert('Operation failed');
@@ -148,24 +130,12 @@ export default function OrdersPage() {
         if (!selectedOrder) return;
 
         try {
-            const response = await fetch(`/api/orders/${selectedOrder._id}/status`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    Authorization: `Bearer ${accessToken}`,
-                },
-                body: JSON.stringify(statusUpdate),
-            });
+            await api.post(`/api/orders/${selectedOrder._id}/status`, statusUpdate);
 
-            if (response.ok) {
                 setShowStatusModal(false);
                 setStatusUpdate({ status: '', notes: '' });
                 setSelectedOrder(null);
                 fetchOrders();
-            } else {
-                const error = await response.json();
-                alert(error.error || 'Status update failed');
-            }
         } catch (error) {
             console.error('Error:', error);
             alert('Status update failed');
@@ -459,7 +429,7 @@ export default function OrdersPage() {
                                 value={formData.notes}
                                 onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
                                 rows={2}
-                                className="w-full px-4 py-3 bg-input border border-border rounded-lg text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+                                className="w-full px-4 py-3 bg-input border border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
                             />
                         </div>
 
@@ -580,7 +550,7 @@ export default function OrdersPage() {
                                 value={statusUpdate.notes}
                                 onChange={(e) => setStatusUpdate({ ...statusUpdate, notes: e.target.value })}
                                 rows={3}
-                                className="w-full px-4 py-3 bg-input border border-border rounded-lg text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+                                className="w-full px-4 py-3 bg-input border border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
                             />
                         </div>
                         <div className="flex space-x-2 pt-4">

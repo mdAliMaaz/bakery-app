@@ -37,7 +37,7 @@ const PremiumSelect = forwardRef<HTMLSelectElement, PremiumSelectProps>(
               bg-input
               border
               ${error ? 'border-red-500' : 'border-border'}
-              rounded-xl
+              rounded-lg
               text-foreground
               appearance-none
               cursor-pointer

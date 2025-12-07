@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
+import { useApi } from '@/hooks/useApi';
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
 import AppLayout from '@/components/layout/AppLayout';
 import PremiumTable from '@/components/tables/PremiumTable';
@@ -26,18 +27,13 @@ interface ReadyOrder {
 
 export default function ReadyOrdersPage() {
   const { accessToken } = useAuth();
+  const api = useApi();
   const [orders, setOrders] = useState<ReadyOrder[]>([]);
   const [loading, setLoading] = useState(true);
 
   const fetchReadyOrders = async () => {
     try {
-      const response = await fetch(
-        '/api/orders?status=Ready%20for%20Dispatch',
-        {
-          headers: { Authorization: `Bearer ${accessToken}` },
-        }
-      );
-      const data = await response.json();
+      const data = await api.get('/api/orders?status=Ready%20for%20Dispatch');
       setOrders(data.orders || []);
     } catch (error) {
       console.error('Error fetching ready orders:', error);
@@ -47,10 +43,8 @@ export default function ReadyOrdersPage() {
   };
 
   useEffect(() => {
-    if (accessToken) {
       fetchReadyOrders();
-    }
-  }, [accessToken]);
+  }, []);
 
   const columns = useMemo(
     () => [

@@ -17,6 +17,12 @@ class ApiClient {
     }> = [];
 
     configure(options: ApiClientOptions) {
+        console.log('API Client configured with tokens:', {
+            hasAccessToken: !!options.accessToken,
+            hasRefreshToken: !!options.refreshToken,
+            hasOnTokenRefresh: !!options.onTokenRefresh,
+            hasOnLogout: !!options.onLogout
+        });
         this.accessToken = options.accessToken;
         this.refreshToken = options.refreshToken;
         this.onTokenRefresh = options.onTokenRefresh;
@@ -37,10 +43,12 @@ class ApiClient {
 
     private async refreshAccessToken(): Promise<string | null> {
         if (!this.refreshToken) {
+            console.log('No refresh token available');
             throw new Error('No refresh token available');
         }
 
         try {
+            console.log('Attempting to refresh access token...');
             const response = await fetch('/api/auth/refresh', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -48,11 +56,14 @@ class ApiClient {
             });
 
             if (!response.ok) {
+                console.log('Token refresh failed with status:', response.status);
                 throw new Error('Token refresh failed');
             }
 
             const data = await response.json();
             const newAccessToken = data.accessToken;
+
+            console.log('Token refresh successful');
 
             // Update the stored token
             this.accessToken = newAccessToken;
@@ -67,10 +78,7 @@ class ApiClient {
 
             return newAccessToken;
         } catch (error) {
-            // If refresh fails, logout
-            if (this.onLogout) {
-                this.onLogout();
-            }
+            console.log('Token refresh error:', error);
             throw error;
         }
     }
@@ -79,12 +87,17 @@ class ApiClient {
         url: string,
         options: RequestInit = {}
     ): Promise<T> {
-        const headers = new Headers(options.headers);
-
-        // Add authorization header if we have a token
-        if (this.accessToken) {
-            headers.set('Authorization', `Bearer ${this.accessToken}`);
+        // If we don't have an access token, we can't make authenticated requests
+        if (!this.accessToken) {
+            console.log('No access token available for request to:', url);
+            if (this.onLogout) {
+                this.onLogout();
+            }
+            throw new Error('No access token available');
         }
+
+        const headers = new Headers(options.headers);
+        headers.set('Authorization', `Bearer ${this.accessToken}`);
 
         const requestOptions = {
             ...options,
@@ -92,7 +105,9 @@ class ApiClient {
         };
 
         try {
+            console.log('Making API request to:', url);
             const response = await fetch(url, requestOptions);
+            console.log('API response status:', response.status);
 
             // If unauthorized and we have a refresh token, try to refresh
             if (response.status === 401 && this.refreshToken && !this.isRefreshing) {
@@ -109,16 +124,27 @@ class ApiClient {
                         headers,
                     });
 
-                    this.processQueue(null, newToken);
-                    return await retryResponse.json();
+                    // If retry succeeds, return the result
+                    if (retryResponse.ok) {
+                        this.processQueue(null, newToken);
+                        return await retryResponse.json();
+                    } else {
+                        // Retry also failed, logout
+                        throw new Error('Retry failed after token refresh');
+                    }
                 } catch (refreshError) {
                     this.isRefreshing = false;
                     this.processQueue(refreshError, null);
+
+                    // If refresh failed, logout
+                    if (this.onLogout) {
+                        this.onLogout();
+                    }
                     throw refreshError;
                 }
             }
 
-            // If still unauthorized after refresh attempt, logout
+            // If unauthorized and no refresh token or refresh not attempted, logout
             if (response.status === 401 && this.onLogout) {
                 this.onLogout();
             }

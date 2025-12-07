@@ -68,7 +68,7 @@ export default function PremiumModal({
             <div
                 ref={modalRef}
                 onClick={(e) => e.stopPropagation()}
-                className={`relative w-full ${sizeClasses[size]} rounded-3xl shadow-2xl animate-scale-in border border-border/50 overflow-hidden backdrop-blur-xl`}
+                className={`relative w-full ${sizeClasses[size]} shadow-2xl animate-scale-in border border-border overflow-hidden`}
                 style={{
                     maxHeight: '90vh',
                     display: 'flex',
@@ -80,15 +80,16 @@ export default function PremiumModal({
 
                 <div className="relative z-10 flex flex-col h-full">
                     {title && (
-                        <div className="px-6 py-4 border-b border-border" style={{ backgroundColor: 'var(--muted)' }}>
-                            <h2 className="text-xl font-semibold" style={{ color: 'var(--card-foreground)' }}>{title}</h2>
+                        <div className="px-4 py-3 border-b border-border" style={{ backgroundColor: 'var(--muted)' }}>
+                            <h2 className="text-lg font-semibold" style={{ color: 'var(--card-foreground)' }}>{title}</h2>
                         </div>
                     )}
 
                     {showCloseButton && (
                         <button
                             onClick={onClose}
-                            className="absolute top-4 right-4 z-20 p-2 rounded-lg bg-muted hover:bg-muted text-muted-foreground hover:text-foreground transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary"
+                            className="absolute top-3 right-3 z-20 p-2 rounded-lg bg-muted hover:bg-muted text-muted-foreground hover:text-foreground transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary"
+                            style={{ marginTop: '4px', marginRight: '4px' }}
                             aria-label="Close modal"
                         >
                             <X className="w-5 h-5" />
@@ -96,9 +97,9 @@ export default function PremiumModal({
                     )}
 
                     <div
-                        className="overflow-y-auto flex-1 p-6"
+                        className="relative overflow-visible flex-1 p-4"
                         style={{
-                            maxHeight: 'calc(90vh - 80px)',
+                            maxHeight: 'calc(90vh - 70px)',
                             color: 'var(--card-foreground)',
                         }}
                     >

@@ -39,6 +39,10 @@ export default function InventoryPage() {
     const [searchQuery, setSearchQuery] = useState('');
     const [nameSuggestions, setNameSuggestions] = useState<Array<{ value: string; label: string }>>([]);
 
+    // Pagination state
+    const [currentPage, setCurrentPage] = useState(1);
+    const [itemsPerPage, setItemsPerPage] = useState(10);
+
     const [formData, setFormData] = useState({
         name: '',
         unit: 'Kg',
@@ -107,24 +111,12 @@ export default function InventoryPage() {
         if (!selectedItem) return;
 
         try {
-            const response = await fetch(`/api/inventory/${selectedItem._id}/purchase`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    Authorization: `Bearer ${accessToken}`,
-                },
-                body: JSON.stringify(purchaseData),
-            });
+            await api.post(`/api/inventory/${selectedItem._id}/purchase`, purchaseData);
 
-            if (response.ok) {
                 setShowPurchaseModal(false);
                 setPurchaseData({ quantity: 0, cost: 0, vendor: '' });
                 setSelectedItem(null);
                 fetchItems();
-            } else {
-                const error = await response.json();
-                alert(error.error || 'Operation failed');
-            }
         } catch (error) {
             console.error('Error:', error);
             alert('Operation failed');

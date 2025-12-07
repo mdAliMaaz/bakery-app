@@ -3,8 +3,10 @@ import connectDB from "@/lib/mongodb/connection";
 import {
   Order,
   InventoryItem,
+  FinishedGoods,
   UserRole,
   OrderStatus,
+  TransactionType,
 } from "@/lib/mongodb/models";
 import { authorize, AuthenticatedRequest } from "@/lib/auth/middleware";
 
@@ -104,6 +106,44 @@ async function postHandler(
             updatedBy: req.user!.userId,
           },
         });
+      }
+    }
+
+    // Handle finished goods updates based on status
+    if (status === OrderStatus.READY_FOR_DISPATCH && order.status !== OrderStatus.READY_FOR_DISPATCH) {
+      // Add to finished goods when order is ready for dispatch
+      for (const item of order.items) {
+        const finishedGoodsItem = await FinishedGoods.findOne({ recipe: item.recipe });
+        if (finishedGoodsItem) {
+          finishedGoodsItem.currentStock += item.quantity;
+          finishedGoodsItem.lastProducedDate = new Date();
+          finishedGoodsItem.stockHistory.push({
+            transactionType: TransactionType.PRODUCED,
+            quantity: item.quantity,
+            date: new Date(),
+            orderId: order._id,
+            updatedBy: req.user!.userId,
+            notes: `Produced for order ${order.orderNumber}`,
+          });
+          await finishedGoodsItem.save();
+        }
+      }
+    } else if (status === OrderStatus.DELIVERED && order.status !== OrderStatus.DELIVERED) {
+      // Deduct from finished goods when order is delivered
+      for (const item of order.items) {
+        const finishedGoodsItem = await FinishedGoods.findOne({ recipe: item.recipe });
+        if (finishedGoodsItem && finishedGoodsItem.currentStock >= item.quantity) {
+          finishedGoodsItem.currentStock -= item.quantity;
+          finishedGoodsItem.stockHistory.push({
+            transactionType: TransactionType.SOLD,
+            quantity: -item.quantity,
+            date: new Date(),
+            orderId: order._id,
+            updatedBy: req.user!.userId,
+            notes: `Sold via order ${order.orderNumber}`,
+          });
+          await finishedGoodsItem.save();
+        }
       }
     }
 

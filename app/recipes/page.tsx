@@ -40,6 +40,7 @@ export default function RecipesPage() {
     const [recipePerformance, setRecipePerformance] = useState<any[]>([]);
     const [submitError, setSubmitError] = useState<string>('');
     const [inventoryItems, setInventoryItems] = useState<Array<{ value: string; label: string; data: any }>>([]);
+    const [recipeNameSuggestions, setRecipeNameSuggestions] = useState<Array<{ value: string; label: string }>>([]);
 
     const [formData, setFormData] = useState({
         name: '',
@@ -52,7 +53,15 @@ export default function RecipesPage() {
     const fetchRecipes = async () => {
         try {
             const data = await api.get('/api/recipes');
-            setRecipes(data.recipes || []);
+            const fetchedRecipes = data.recipes || [];
+            setRecipes(fetchedRecipes);
+            
+            // Update recipe name suggestions for autocomplete
+            const suggestions = fetchedRecipes.map((recipe: Recipe) => ({
+                value: recipe.name,
+                label: recipe.name,
+            }));
+            setRecipeNameSuggestions(suggestions);
         } catch (error) {
             console.error('Error fetching recipes:', error);
         } finally {
@@ -111,9 +120,15 @@ export default function RecipesPage() {
             setShowModal(false);
             resetForm();
             fetchRecipes();
-        } catch (error) {
+        } catch (error: any) {
             console.error('Error:', error);
-            setSubmitError('Network error. Please try again.');
+            
+            // Check if it's a duplicate error message
+            if (error.message && error.message.includes('already exists')) {
+                setSubmitError(error.message);
+            } else {
+                setSubmitError(error.message || 'Network error. Please try again.');
+            }
         }
     };
 
@@ -178,10 +193,10 @@ export default function RecipesPage() {
                     <div className="mb-8 animate-slide-up">
                         <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
                             <div>
-                                <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent mb-2">
+                                <h1 className="text-4xl font-bold text-indigo-300 mb-2">
                                     Recipe Management
                                 </h1>
-                                <p className="text-muted-foreground">Create and manage recipes for your bakery items</p>
+                                <p className="text-gray-400 font-medium">Create and manage recipes for your bakery items</p>
                             </div>
                             <PremiumButton
                                 onClick={() => {
@@ -212,18 +227,18 @@ export default function RecipesPage() {
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                             {recipes.map((recipe) => (
                                 <div key={recipe._id} className="bg-card border border-border p-6 shadow-md hover:shadow-lg transition-all duration-300 transform hover:scale-105">
-                                    <h3 className="text-lg font-semibold text-foreground mb-2">{recipe.name}</h3>
+                                    <h3 className="text-lg font-bold text-gray-100 mb-2">{recipe.name}</h3>
                                     {recipe.description && (
-                                        <p className="text-sm text-muted-foreground mb-4">{recipe.description}</p>
+                                        <p className="text-sm text-gray-300 mb-4 font-medium">{recipe.description}</p>
                                     )}
                                     <div className="mb-4">
-                                        <p className="text-sm text-foreground">
-                                            <span className="font-medium">Standard Yield:</span> {recipe.standardQuantity} {recipe.standardUnit}
+                                        <p className="text-sm text-gray-100 font-medium">
+                                            <span className="font-semibold">Standard Yield:</span> {recipe.standardQuantity} {recipe.standardUnit}
                                         </p>
                                     </div>
                                     <div className="mb-4">
-                                        <p className="text-sm font-medium text-foreground mb-2">Ingredients:</p>
-                                        <ul className="text-sm text-muted-foreground space-y-1">
+                                        <p className="text-sm font-semibold text-gray-100 mb-2">Ingredients:</p>
+                                        <ul className="text-sm text-gray-300 space-y-1 font-medium">
                                             {recipe.ingredients.map((ing, idx) => (
                                                 <li key={idx}>
                                                     • {ing.inventoryItem.name}: {ing.quantity} {ing.unit}
@@ -244,7 +259,7 @@ export default function RecipesPage() {
                     )}
 
                     {!loading && recipes.length === 0 && (
-                        <div className="text-center py-12 text-muted-foreground">
+                        <div className="text-center py-12 text-gray-400 font-medium">
                             No recipes found. Add your first recipe to get started.
                         </div>
                     )}
@@ -257,30 +272,32 @@ export default function RecipesPage() {
                         resetForm();
                     }}
                     title={selectedRecipe ? 'Edit Recipe' : 'Add New Recipe'}
-                    size="lg"
+                    size="xl"
                 >
                     <form onSubmit={handleSubmit} className="space-y-4 max-h-[70vh] overflow-visible pr-2">
                         {submitError && (
-                            <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 p-4 mb-4">
-                                <p className="text-red-600 dark:text-red-400 text-sm font-medium">
+                            <div className="bg-red-900/20 border border-red-800 p-4 mb-4">
+                                <p className="text-red-400 text-sm font-medium">
                                     {submitError}
                                 </p>
                             </div>
                         )}
-                        <PremiumInput
+                        <Autocomplete
                             label="Recipe Name"
-                            type="text"
-                            required
+                            options={recipeNameSuggestions}
                             value={formData.name}
-                            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                            onChange={(value) => setFormData({ ...formData, name: value })}
+                            onSelect={(option) => setFormData({ ...formData, name: option.label })}
+                            placeholder="Enter recipe name or search existing recipes..."
+                            showClearButton={true}
                         />
                         <div>
-                            <label className="block text-sm font-medium text-foreground mb-2">Description (Optional)</label>
+                            <label className="block text-sm font-semibold text-gray-100 mb-2">Description (Optional)</label>
                             <textarea
                                 value={formData.description}
                                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                                 rows={2}
-                                className="w-full px-4 py-3 bg-input border border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+                                className="w-full px-4 py-3 bg-gray-800 border-2 border-gray-600 text-gray-100 placeholder:text-gray-500 focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500 rounded-xl font-medium"
                             />
                         </div>
                         <div className="grid grid-cols-2 gap-4">
@@ -315,13 +332,13 @@ export default function RecipesPage() {
                                 </PremiumButton>
                             </div>
                             {inventoryItems.length === 0 && (
-                                <div className="text-xs text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/20 px-2 py-1 rounded mb-4">
+                                <div className="text-xs text-amber-400 bg-amber-900/20 px-2 py-1 rounded mb-4">
                                     Create inventory items first to add ingredients to recipes.
                                 </div>
                             )}
                             {formData.ingredients.map((ingredient, index) => (
-                                <div key={index} className="flex gap-2 mb-2">
-                                    <div className="flex-1">
+                                <div key={index} className="flex gap-3 mb-3 items-end">
+                                    <div className="flex-1 min-w-0">
                                         <Autocomplete
                                             options={inventoryItems.length > 0 ? inventoryItems : [
                                                 { value: 'test1', label: 'Flour', data: { unit: 'kg' } },
@@ -354,30 +371,33 @@ export default function RecipesPage() {
                                             showClearButton={true}
                                         />
                                     </div>
-                                    <PremiumInput
-                                        type="number"
-                                        required
-                                        min="0.01"
-                                        step="0.01"
-                                        placeholder="Quantity"
-                                        value={ingredient.quantity || ''}
-                                        onChange={(e) => updateIngredient(index, 'quantity', parseFloat(e.target.value))}
-                                        className="w-24"
-                                    />
-                                    <PremiumInput
-                                        type="text"
-                                        required
-                                        placeholder="Unit"
-                                        value={ingredient.unit}
-                                        onChange={(e) => updateIngredient(index, 'unit', e.target.value)}
-                                        className="w-20"
-                                    />
+                                    <div className="w-32">
+                                        <PremiumInput
+                                            type="number"
+                                            required
+                                            min="0.01"
+                                            step="0.01"
+                                            placeholder="Quantity"
+                                            value={ingredient.quantity || ''}
+                                            onChange={(e) => updateIngredient(index, 'quantity', parseFloat(e.target.value))}
+                                        />
+                                    </div>
+                                    <div className="w-28">
+                                        <PremiumInput
+                                            type="text"
+                                            required
+                                            placeholder="Unit"
+                                            value={ingredient.unit}
+                                            onChange={(e) => updateIngredient(index, 'unit', e.target.value)}
+                                        />
+                                    </div>
                                     {formData.ingredients.length > 1 && (
                                         <PremiumButton
                                             type="button"
                                             variant="danger"
                                             size="sm"
                                             onClick={() => removeIngredient(index)}
+                                            className="flex-shrink-0"
                                         >
                                             <X className="w-4 h-4" />
                                         </PremiumButton>

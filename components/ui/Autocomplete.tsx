@@ -148,12 +148,12 @@ export default function Autocomplete({
                     placeholder={placeholder}
                     disabled={disabled}
                     className={`
-                        w-full px-4 py-3 pr-12 bg-input border rounded-lg text-foreground
-                        placeholder:text-muted-foreground focus:outline-none focus:ring-2
-                        transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed
+                        w-full px-4 py-3 pr-12 bg-gray-800 border-2 rounded-xl text-gray-100 font-medium
+                        placeholder:text-gray-500 focus:outline-none focus:ring-4
+                        transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed
                         ${error
-                            ? 'border-red-500 focus:ring-red-500'
-                            : 'border-border focus:ring-primary focus:border-primary'
+                            ? 'border-red-500 focus:ring-red-500/20 focus:border-red-500'
+                            : 'border-gray-600 focus:ring-indigo-500/20 focus:border-indigo-500 hover:border-indigo-400'
                         }
                     `}
                     style={{
@@ -197,7 +197,7 @@ export default function Autocomplete({
 
             {/* Error message */}
             {error && (
-                <p className="mt-1 text-sm text-red-600 dark:text-red-400">
+                <p className="mt-1 text-sm text-red-400">
                     {error}
                 </p>
             )}
@@ -206,18 +206,17 @@ export default function Autocomplete({
             {isOpen && filteredOptions.length > 0 && (
                 <ul
                     ref={listRef}
-                    className="absolute z-[100] w-full mt-2 bg-card border-2 border-primary/30 shadow-2xl max-h-[400px] overflow-y-auto"
-                    style={{ backgroundColor: 'var(--card)', borderColor: 'var(--primary)', opacity: 0.98 }}
+                    className="absolute z-[100] w-full mt-2 bg-gray-800 border-2 border-indigo-700 rounded-xl shadow-2xl max-h-[400px] overflow-y-auto"
                 >
                     {filteredOptions.map((option, index) => (
                         <li
                             key={option.value}
                             onClick={() => handleSelect(option)}
                             className={`
-                                px-6 py-5 cursor-pointer transition-all duration-200 flex items-center justify-between text-base font-medium
+                                px-6 py-4 cursor-pointer transition-all duration-300 flex items-center justify-between text-base font-semibold
                                 ${index === highlightedIndex
-                                    ? 'bg-primary text-primary-foreground shadow-lg scale-[1.02]'
-                                    : 'hover:bg-muted/80 hover:shadow-md text-foreground hover:scale-[1.01]'
+                                    ? 'bg-gradient-to-r from-indigo-500 to-purple-500 text-white shadow-lg scale-[1.02]'
+                                    : 'hover:bg-indigo-900/20 hover:shadow-md text-gray-100 hover:scale-[1.01]'
                                 }
                             `}
                             style={index === highlightedIndex ? {
@@ -237,8 +236,7 @@ export default function Autocomplete({
             {/* No results */}
             {isOpen && filteredOptions.length === 0 && (
                 <div
-                    className="absolute z-[100] w-full mt-2 bg-card border-2 border-primary/30 shadow-2xl p-6 text-center text-muted-foreground text-lg"
-                    style={{ backgroundColor: 'var(--card)', borderColor: 'var(--primary)', opacity: 0.98 }}
+                    className="absolute z-[100] w-full mt-2 bg-gray-800 border-2 border-indigo-700 rounded-xl shadow-2xl p-6 text-center text-gray-400 text-lg font-medium"
                 >
                     {value ? 'No matching items found' : 'No items available'}
                 </div>

@@ -55,13 +55,13 @@ const statusOptions = [
 ];
 
 const statusColors: Record<string, { bg: string; text: string }> = {
-    'Draft': { bg: 'bg-muted', text: 'text-muted-foreground' },
-    'Ingredients Allocated': { bg: 'bg-blue-100 dark:bg-blue-900/30', text: 'text-blue-800 dark:text-blue-200' },
-    'In Production': { bg: 'bg-yellow-100 dark:bg-yellow-900/30', text: 'text-yellow-800 dark:text-yellow-200' },
-    'Ready for Dispatch': { bg: 'bg-purple-100 dark:bg-purple-900/30', text: 'text-purple-800 dark:text-purple-200' },
-    'Dispatched': { bg: 'bg-indigo-100 dark:bg-indigo-900/30', text: 'text-indigo-800 dark:text-indigo-200' },
-    'Delivered': { bg: 'bg-green-100 dark:bg-green-900/30', text: 'text-green-800 dark:text-green-200' },
-    'Cancelled': { bg: 'bg-red-100 dark:bg-red-900/30', text: 'text-red-800 dark:text-red-200' },
+    'Draft': { bg: 'bg-gray-800', text: 'text-gray-300' },
+    'Ingredients Allocated': { bg: 'bg-blue-900/30', text: 'text-blue-200' },
+    'In Production': { bg: 'bg-yellow-900/30', text: 'text-yellow-200' },
+    'Ready for Dispatch': { bg: 'bg-purple-900/30', text: 'text-purple-200' },
+    'Dispatched': { bg: 'bg-indigo-900/30', text: 'text-indigo-200' },
+    'Delivered': { bg: 'bg-green-900/30', text: 'text-green-200' },
+    'Cancelled': { bg: 'bg-red-900/30', text: 'text-red-200' },
 };
 
 export default function OrdersPage() {
@@ -83,6 +83,10 @@ export default function OrdersPage() {
     });
 
     const [statusUpdate, setStatusUpdate] = useState({ status: '', notes: '' });
+
+    // Pagination state
+    const [currentPage, setCurrentPage] = useState(1);
+    const [itemsPerPage, setItemsPerPage] = useState(10);
 
     const fetchOrders = async () => {
         try {
@@ -210,7 +214,7 @@ export default function OrdersPage() {
             key: 'orderNumber',
             header: 'Order #',
             render: (order: Order) => (
-                <span className="font-medium text-foreground">{order.orderNumber}</span>
+                <span className="font-semibold text-gray-100">{order.orderNumber}</span>
             ),
         },
         {
@@ -218,8 +222,8 @@ export default function OrdersPage() {
             header: 'Customer',
             render: (order: Order) => (
                 <div>
-                    <div className="font-medium text-foreground">{order.customer.name}</div>
-                    <div className="text-sm text-muted-foreground">{order.customer.phoneNumber}</div>
+                    <div className="font-semibold text-gray-100">{order.customer.name}</div>
+                    <div className="text-sm text-gray-400 font-medium">{order.customer.phoneNumber}</div>
                 </div>
             ),
         },
@@ -227,14 +231,14 @@ export default function OrdersPage() {
             key: 'items',
             header: 'Items',
             render: (order: Order) => (
-                <span className="text-foreground">{order.items.length} item(s)</span>
+                <span className="text-gray-100 font-medium">{order.items.length} item(s)</span>
             ),
         },
         {
             key: 'orderDate',
             header: 'Order Date',
             render: (order: Order) => (
-                <span className="text-foreground">{new Date(order.orderDate).toLocaleDateString()}</span>
+                <span className="text-gray-100 font-medium">{new Date(order.orderDate).toLocaleDateString()}</span>
             ),
         },
         {
@@ -286,10 +290,10 @@ export default function OrdersPage() {
                     <div className="mb-8 animate-slide-up">
                         <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
                             <div>
-                                <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent mb-2">
+                                <h1 className="text-4xl font-bold text-indigo-300 mb-2">
                                     Order Management
                                 </h1>
-                                <p className="text-muted-foreground">Create and manage customer orders</p>
+                                <p className="text-gray-400 font-medium">Create and manage customer orders</p>
                             </div>
                             <PremiumButton
                                 onClick={() => {
@@ -323,6 +327,15 @@ export default function OrdersPage() {
                             columns={columns}
                             keyExtractor={(order) => order._id}
                             emptyMessage="No orders found. Create your first order to get started."
+                            enablePagination={true}
+                            currentPage={currentPage}
+                            itemsPerPage={itemsPerPage}
+                            onPageChange={setCurrentPage}
+                            onItemsPerPageChange={(newItemsPerPage) => {
+                                setItemsPerPage(newItemsPerPage);
+                                setCurrentPage(1);
+                            }}
+                            showItemsPerPage={true}
                         />
                     )}
 
@@ -338,7 +351,7 @@ export default function OrdersPage() {
                 >
                     <form onSubmit={handleSubmit} className="space-y-6 max-h-[70vh] overflow-y-auto pr-2">
                         <div className="space-y-4">
-                            <h4 className="font-semibold text-foreground">Customer Details</h4>
+                            <h4 className="font-bold text-gray-100">Customer Details</h4>
                             <div className="grid grid-cols-2 gap-4">
                                 <PremiumInput
                                     label="Customer Name"
@@ -424,12 +437,12 @@ export default function OrdersPage() {
                         />
 
                         <div>
-                            <label className="block text-sm font-medium text-foreground mb-2">Notes</label>
+                            <label className="block text-sm font-semibold text-gray-100 mb-2">Notes</label>
                             <textarea
                                 value={formData.notes}
                                 onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
                                 rows={2}
-                                className="w-full px-4 py-3 bg-input border border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+                                className="w-full px-4 py-3 bg-gray-800 border-2 border-gray-600 text-gray-100 placeholder:text-gray-500 focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500 rounded-xl font-medium"
                             />
                         </div>
 
@@ -467,13 +480,13 @@ export default function OrdersPage() {
                             <div>
                                 <h4 className="font-semibold text-foreground mb-2">Customer Information</h4>
                                 <div className="bg-muted p-4 rounded-lg">
-                                    <p className="text-foreground"><span className="font-medium">Name:</span> {selectedOrder.customer.name}</p>
-                                    <p className="text-foreground"><span className="font-medium">Phone:</span> {selectedOrder.customer.phoneNumber}</p>
+                                    <p className="text-gray-100 font-medium"><span className="font-semibold">Name:</span> {selectedOrder.customer.name}</p>
+                                    <p className="text-gray-100 font-medium"><span className="font-semibold">Phone:</span> {selectedOrder.customer.phoneNumber}</p>
                                     {selectedOrder.customer.address && (
-                                        <p className="text-foreground"><span className="font-medium">Address:</span> {selectedOrder.customer.address}</p>
+                                        <p className="text-gray-100 font-medium"><span className="font-semibold">Address:</span> {selectedOrder.customer.address}</p>
                                     )}
                                     {selectedOrder.customer.email && (
-                                        <p className="text-foreground"><span className="font-medium">Email:</span> {selectedOrder.customer.email}</p>
+                                        <p className="text-gray-100 font-medium"><span className="font-semibold">Email:</span> {selectedOrder.customer.email}</p>
                                     )}
                                 </div>
                             </div>
@@ -483,7 +496,7 @@ export default function OrdersPage() {
                                 <div className="bg-muted p-4 rounded-lg">
                                     <ul className="space-y-2">
                                         {selectedOrder.items.map((item, idx) => (
-                                            <li key={idx} className="text-foreground">
+                                            <li key={idx} className="text-gray-100 font-medium">
                                                 {item.recipe.name} — Qty: {item.quantity}
                                             </li>
                                         ))}
@@ -498,7 +511,7 @@ export default function OrdersPage() {
                                         {selectedOrder.totalIngredients.map((ing, idx) => (
                                             <li
                                                 key={idx}
-                                                className={ing.inventoryItem.currentStock < ing.quantity ? 'text-red-600 dark:text-red-400' : 'text-foreground'}
+                                                className={ing.inventoryItem.currentStock < ing.quantity ? 'text-red-400 font-semibold' : 'text-gray-100 font-medium'}
                                             >
                                                 {ing.inventoryItem.name}: {ing.quantity} {ing.unit}
                                                 {ing.inventoryItem.currentStock < ing.quantity && ' (Insufficient stock!)'}
@@ -517,8 +530,8 @@ export default function OrdersPage() {
 
                             {selectedOrder.notes && (
                                 <div>
-                                    <h4 className="font-semibold text-foreground mb-2">Notes</h4>
-                                    <p className="text-foreground">{selectedOrder.notes}</p>
+                                    <h4 className="font-bold text-gray-100 mb-2">Notes</h4>
+                                    <p className="text-gray-100 font-medium">{selectedOrder.notes}</p>
                                 </div>
                             )}
                         </div>
@@ -550,7 +563,7 @@ export default function OrdersPage() {
                                 value={statusUpdate.notes}
                                 onChange={(e) => setStatusUpdate({ ...statusUpdate, notes: e.target.value })}
                                 rows={3}
-                                className="w-full px-4 py-3 bg-input border border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+                                className="w-full px-4 py-3 bg-gray-800 border-2 border-gray-600 text-gray-100 placeholder:text-gray-500 focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500 rounded-xl font-medium"
                             />
                         </div>
                         <div className="flex space-x-2 pt-4">

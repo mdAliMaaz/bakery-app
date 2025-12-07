@@ -12,12 +12,12 @@ interface PremiumButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 const variantClasses = {
-    primary: 'bg-gradient-to-r from-sky-500 to-sky-600 text-white hover:shadow-xl hover:shadow-sky-500/40 hover:scale-[1.02] active:scale-[0.98] border border-sky-400/30 transition-all duration-200',
-    secondary: 'bg-gradient-to-r from-orange-500 to-orange-600 text-white hover:shadow-xl hover:shadow-orange-500/40 hover:scale-[1.02] active:scale-[0.98] border border-orange-400/30 transition-all duration-200',
-    accent: 'bg-gradient-to-r from-violet-500 to-violet-600 text-white hover:shadow-xl hover:shadow-violet-500/40 hover:scale-[1.02] active:scale-[0.98] border border-violet-400/30 transition-all duration-200',
-    outline: 'border-2 border-green-500 text-green-600 dark:text-green-400 hover:bg-green-500 hover:text-white hover:shadow-xl hover:shadow-green-500/40 hover:scale-[1.02] active:scale-[0.98] bg-card transition-all duration-200',
-    ghost: 'text-pink-600 dark:text-pink-400 hover:bg-pink-50 dark:hover:bg-pink-900/20 hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] bg-card/50 transition-all duration-200',
-    danger: 'bg-gradient-to-r from-red-500 to-red-600 text-white hover:shadow-xl hover:shadow-red-500/40 hover:scale-[1.02] active:scale-[0.98] border border-red-400/30 transition-all duration-200',
+    primary: 'bg-gradient-to-r from-indigo-500 via-indigo-600 to-purple-600 text-white font-bold hover:shadow-2xl hover:shadow-indigo-500/50 hover:scale-[1.03] active:scale-[0.97] transition-all duration-300 rounded-xl',
+    secondary: 'bg-gradient-to-r from-pink-500 via-pink-600 to-rose-600 text-white font-bold hover:shadow-2xl hover:shadow-pink-500/50 hover:scale-[1.03] active:scale-[0.97] transition-all duration-300 rounded-xl',
+    accent: 'bg-gradient-to-r from-amber-500 via-orange-500 to-orange-600 text-white font-bold hover:shadow-2xl hover:shadow-orange-500/50 hover:scale-[1.03] active:scale-[0.97] transition-all duration-300 rounded-xl',
+    outline: 'border-3 border-emerald-500 text-emerald-400 hover:bg-gradient-to-r hover:from-emerald-500 hover:to-emerald-600 hover:text-white hover:shadow-2xl hover:shadow-emerald-500/50 hover:scale-[1.03] active:scale-[0.97] bg-gray-800 font-bold transition-all duration-300 rounded-xl',
+    ghost: 'text-purple-400 hover:bg-gradient-to-r hover:from-purple-900/30 hover:to-pink-900/30 hover:shadow-lg hover:scale-[1.03] active:scale-[0.97] font-semibold transition-all duration-300 rounded-xl',
+    danger: 'bg-gradient-to-r from-red-500 via-red-600 to-rose-600 text-white font-bold hover:shadow-2xl hover:shadow-red-500/50 hover:scale-[1.03] active:scale-[0.97] transition-all duration-300 rounded-xl',
 };
 
 const sizeClasses = {

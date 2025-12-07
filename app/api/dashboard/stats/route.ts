@@ -75,31 +75,9 @@ async function getHandler(req: AuthenticatedRequest) {
       .select("name currentStock unit lastProducedDate")
       .sort({ name: 1 });
 
-    // Daily sales trend (last 30 days)
+    // Purchase history for inventory (last 30 days)
     const thirtyDaysAgo = new Date();
     thirtyDaysAgo.setDate(now.getDate() - 30);
-
-    const salesTrend = await Order.aggregate([
-      {
-        $match: {
-          orderDate: { $gte: thirtyDaysAgo, $lte: now },
-          status: { $in: [OrderStatus.DELIVERED, OrderStatus.DISPATCHED] },
-        },
-      },
-      {
-        $group: {
-          _id: {
-            $dateToString: { format: "%Y-%m-%d", date: "$orderDate" },
-          },
-          count: { $sum: 1 },
-        },
-      },
-      {
-        $sort: { _id: 1 },
-      },
-    ]);
-
-    // Purchase history for inventory (last 30 days)
     const purchaseHistory = await InventoryItem.aggregate([
       { $unwind: "$purchaseHistory" },
       {
@@ -120,40 +98,6 @@ async function getHandler(req: AuthenticatedRequest) {
         },
       },
       { $sort: { _id: 1 } },
-    ]);
-
-    // Sales by recipe
-    const salesByRecipe = await Order.aggregate([
-      {
-        $match: {
-          orderDate: { $gte: thirtyDaysAgo, $lte: now },
-          status: { $in: [OrderStatus.DELIVERED, OrderStatus.DISPATCHED] },
-        },
-      },
-      { $unwind: "$items" },
-      {
-        $group: {
-          _id: "$items.recipe",
-          count: { $sum: "$items.quantity" },
-        },
-      },
-      {
-        $lookup: {
-          from: "recipes",
-          localField: "_id",
-          foreignField: "_id",
-          as: "recipe",
-        },
-      },
-      { $unwind: "$recipe" },
-      {
-        $project: {
-          recipe: "$recipe.name",
-          count: 1,
-        },
-      },
-      { $sort: { count: -1 } },
-      { $limit: 10 },
     ]);
 
     // Order trends
@@ -265,11 +209,7 @@ async function getHandler(req: AuthenticatedRequest) {
         stock: finishedGoodsStock,
       },
       trends: {
-        sales: salesTrend,
-        salesByRecipe: salesByRecipe.map((s) => ({
-          recipe: s.recipe,
-          count: s.count,
-        })),
+        // Removed sales data
       },
       recipes: {
         performance: recipePerformance,

@@ -65,22 +65,22 @@ export default function PremiumTable<T extends Record<string, any>>({
             <div className="colorful-card overflow-hidden shadow-xl colorful-glow">
             <div className="overflow-x-auto">
                 <table className="min-w-full divide-y divide-border">
-                    <thead className="bg-gradient-to-r from-muted to-muted/80 border-b border-border">
+                    <thead className="bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 border-b-2 border-indigo-600">
                         <tr>
                             {columns.map((column) => (
                                 <th
                                     key={column.key}
-                                    className={`px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider ${column.className || ''}`}
+                                    className={`px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider ${column.className || ''}`}
                                 >
                                     {column.header}
                                 </th>
                             ))}
                         </tr>
                     </thead>
-                    <tbody className="bg-card divide-y divide-border">
+                    <tbody className="bg-gray-800 divide-y divide-gray-700">
                         {data.length === 0 ? (
                             <tr>
-                                <td colSpan={columns.length} className="px-6 py-12 text-center text-muted-foreground">
+                                <td colSpan={columns.length} className="px-6 py-12 text-center text-gray-400 font-medium">
                                     {emptyMessage}
                                 </td>
                             </tr>
@@ -90,13 +90,13 @@ export default function PremiumTable<T extends Record<string, any>>({
                                     key={keyExtractor(item)}
                                     onClick={() => onRowClick?.(item)}
                                     className={`
-                    ${onRowClick ? 'cursor-pointer' : ''}
+                    ${onRowClick ? 'cursor-pointer hover:bg-indigo-900/20 transition-colors duration-200' : 'hover:bg-gray-700/50 transition-colors duration-200'}
                   `}
                                 >
                                     {columns.map((column) => (
                                         <td
                                             key={column.key}
-                                            className={`px-6 py-4 whitespace-nowrap text-sm text-foreground ${column.className || ''}`}
+                                            className={`px-6 py-4 whitespace-nowrap text-sm text-gray-100 font-medium ${column.className || ''}`}
                                         >
                                             {column.render ? column.render(item) : item[column.key]}
                                         </td>

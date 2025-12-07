@@ -55,11 +55,13 @@ async function postHandler(req: AuthenticatedRequest) {
       );
     }
 
-    // Check if item already exists
-    const existingItem = await InventoryItem.findOne({ name: name.trim() });
+    // Check if item already exists (case-insensitive)
+    const existingItem = await InventoryItem.findOne({
+      name: { $regex: new RegExp(`^${name.trim()}$`, 'i') }
+    });
     if (existingItem) {
       return NextResponse.json(
-        { error: "Item with this name already exists" },
+        { error: "Item already exists — you can update it instead." },
         { status: 409 }
       );
     }

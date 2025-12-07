@@ -51,7 +51,7 @@ export default function RegisterPage() {
                         </div>
                         <div className="space-y-3 pt-8">
                             <div className="flex items-center space-x-3">
-                                <div className="w-10 h-10 rounded-lg bg-primary/10 dark:bg-primary/20 flex items-center justify-center">
+                                <div className="w-10 h-10 rounded-lg bg-primary/20 flex items-center justify-center">
                                     <Zap className="w-5 h-5 text-primary" />
                                 </div>
                                 <div>
@@ -60,7 +60,7 @@ export default function RegisterPage() {
                                 </div>
                             </div>
                             <div className="flex items-center space-x-3">
-                                <div className="w-10 h-10 rounded-lg bg-secondary/10 dark:bg-secondary/20 flex items-center justify-center">
+                                <div className="w-10 h-10 rounded-lg bg-secondary/20 flex items-center justify-center">
                                     <BarChart3 className="w-5 h-5 text-secondary" />
                                 </div>
                                 <div>
@@ -69,7 +69,7 @@ export default function RegisterPage() {
                                 </div>
                             </div>
                             <div className="flex items-center space-x-3">
-                                <div className="w-10 h-10 rounded-lg bg-accent/10 dark:bg-accent/20 flex items-center justify-center">
+                                <div className="w-10 h-10 rounded-lg bg-accent/20 flex items-center justify-center">
                                     <LockIcon className="w-5 h-5 text-accent" />
                                 </div>
                                 <div>
@@ -97,7 +97,7 @@ export default function RegisterPage() {
 
                             <form className="space-y-6" onSubmit={handleSubmit}>
                                 {error && (
-                                    <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 px-4 py-3 rounded-lg animate-fade-in">
+                                    <div className="bg-red-900/20 border border-red-800 text-red-300 px-4 py-3 rounded-lg animate-fade-in">
                                         {error}
                                     </div>
                                 )}
@@ -108,7 +108,7 @@ export default function RegisterPage() {
                                     required
                                     value={name}
                                     onChange={(e) => setName(e.target.value)}
-                                    placeholder="Enter your full name"
+                                   
                                     leftIcon={<UserIcon className="w-5 h-5" />}
                                 />
 
@@ -118,7 +118,7 @@ export default function RegisterPage() {
                                     required
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
-                                    placeholder="Enter your email"
+                                   
                                     leftIcon={<Mail className="w-5 h-5" />}
                                 />
 
@@ -129,7 +129,7 @@ export default function RegisterPage() {
                                     minLength={6}
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
-                                    placeholder="Enter your password (min 6 characters)"
+                                  
                                     leftIcon={<Lock className="w-5 h-5" />}
                                 />
 

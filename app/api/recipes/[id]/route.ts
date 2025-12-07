@@ -58,6 +58,20 @@ async function putHandler(
       return NextResponse.json({ error: "Recipe not found" }, { status: 404 });
     }
 
+    // Check if name is being changed and if new name already exists (case-insensitive)
+    if (name !== undefined && name.trim().toLowerCase() !== recipe.name.toLowerCase()) {
+      const existingRecipe = await Recipe.findOne({
+        _id: { $ne: id },
+        name: { $regex: new RegExp(`^${name.trim()}$`, 'i') }
+      });
+      if (existingRecipe) {
+        return NextResponse.json(
+          { error: `Recipe "${existingRecipe.name}" already exists. Please use a different name.` },
+          { status: 409 }
+        );
+      }
+    }
+
     // Update fields
     if (name !== undefined) recipe.name = name.trim();
     if (description !== undefined) recipe.description = description;

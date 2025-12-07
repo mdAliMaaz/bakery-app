@@ -48,7 +48,7 @@ export default function LoginPage() {
                         </div>
                         <div className="space-y-3 pt-8">
                             <div className="flex items-center space-x-3">
-                                <div className="w-10 h-10 rounded-lg bg-primary/10 dark:bg-primary/20 flex items-center justify-center">
+                                <div className="w-10 h-10 rounded-lg bg-primary/20 flex items-center justify-center">
                                     <Package className="w-5 h-5 text-primary" />
                                 </div>
                                 <div>
@@ -57,7 +57,7 @@ export default function LoginPage() {
                                 </div>
                             </div>
                             <div className="flex items-center space-x-3">
-                                <div className="w-10 h-10 rounded-lg bg-secondary/10 dark:bg-secondary/20 flex items-center justify-center">
+                                <div className="w-10 h-10 rounded-lg bg-secondary/20 flex items-center justify-center">
                                     <FileText className="w-5 h-5 text-secondary" />
                                 </div>
                                 <div>
@@ -66,7 +66,7 @@ export default function LoginPage() {
                                 </div>
                             </div>
                             <div className="flex items-center space-x-3">
-                                <div className="w-10 h-10 rounded-lg bg-accent/10 dark:bg-accent/20 flex items-center justify-center">
+                                <div className="w-10 h-10 rounded-lg bg-accent/20 flex items-center justify-center">
                                     <ChefHat className="w-5 h-5 text-accent" />
                                 </div>
                                 <div>
@@ -94,7 +94,7 @@ export default function LoginPage() {
 
                             <form className="space-y-6" onSubmit={handleSubmit}>
                                 {error && (
-                                    <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 px-4 py-3 rounded-lg animate-fade-in">
+                                    <div className="bg-red-900/20 border border-red-800 text-red-300 px-4 py-3 rounded-lg animate-fade-in">
                                         {error}
                                     </div>
                                 )}

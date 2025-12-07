@@ -52,18 +52,10 @@ export default function AppLayout({ children }: AppLayoutProps) {
 
     return (
         <div className="min-h-screen bg-background relative overflow-hidden">
-            {/* Subtle Colorful Grid Background */}
-            <div className="absolute inset-0 opacity-3 dark:opacity-5">
-                <div className="absolute inset-0" style={{
-                    backgroundImage: `
-                        linear-gradient(rgba(59, 130, 246, 0.04) 1px, transparent 1px),
-                        linear-gradient(90deg, rgba(139, 92, 246, 0.04) 1px, transparent 1px)
-                    `,
-                    backgroundSize: '40px 40px'
-                }}></div>
-            </div>
+            {/* Background */}
+            <div className="absolute inset-0 bg-gray-900"></div>
             {/* Mobile Header */}
-            <div className="lg:hidden fixed top-0 left-0 right-0 z-30 bg-card/95 border-b border-primary/50 px-4 py-3 flex items-center justify-between backdrop-blur-md cyberpunk-glow">
+            <div className="lg:hidden fixed top-0 left-0 right-0 z-30 bg-gray-800 border-b-2 border-indigo-800 px-4 py-3 flex items-center justify-between shadow-lg">
                 <button
                     onClick={() => setIsSidebarOpen(true)}
                     className="p-2 rounded-lg hover:bg-muted transition-colors duration-200"
@@ -72,7 +64,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
                     <Menu className="w-5 h-5" />
                 </button>
 
-                <h1 className="text-lg font-semibold text-foreground">
+                <h1 className="text-lg font-bold text-gray-100">
                     Restaurant Inventory
                 </h1>
 
@@ -89,13 +81,6 @@ export default function AppLayout({ children }: AppLayoutProps) {
                 ${isSidebarCollapsed ? 'lg:ml-20' : 'lg:ml-72'}
                 ml-0
             `}>
-                {/* Cyberpunk Content Border */}
-                <div className="absolute inset-0 pointer-events-none">
-                    <div className="w-full h-full border border-primary/20 rounded-lg"
-                         style={{
-                             boxShadow: 'inset 0 0 20px rgba(0, 255, 255, 0.1)'
-                         }}></div>
-                </div>
                 {/* Mobile top padding to account for fixed header */}
                 <div className="pt-16 lg:pt-0">
                     <main className="min-h-screen">

@@ -4,8 +4,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
-import ThemeToggle from './ThemeToggle';
-import { LayoutDashboard, Package, ChefHat, FileText, Menu, X, ChevronDown, LogOut, User, Package as PackageIcon, ChevronLeft, ChevronRight } from 'lucide-react';
+import { LayoutDashboard, Package, ChefHat, FileText, Menu, X, ChevronDown, LogOut, User, Package as PackageIcon, ChevronLeft, ChevronRight, CheckCircle2 } from 'lucide-react';
 
 export default function Sidebar({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
     const [isCollapsed, setIsCollapsed] = useState(false);
@@ -18,6 +17,7 @@ export default function Sidebar({ isOpen, onClose }: { isOpen: boolean; onClose:
         { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
         { name: 'Inventory', href: '/inventory', icon: Package },
         { name: 'Recipes', href: '/recipes', icon: ChefHat },
+        { name: 'Finished Goods', href: '/finished-goods', icon: CheckCircle2 },
         { name: 'Orders', href: '/orders', icon: FileText },
         { name: 'Ready to Dispatch', href: '/orders/ready', icon: FileText },
     ];
@@ -72,7 +72,7 @@ export default function Sidebar({ isOpen, onClose }: { isOpen: boolean; onClose:
 
             {/* Sidebar */}
             <div className={`
-                fixed top-0 left-0 z-50 h-screen bg-card 
+                fixed top-0 left-0 z-50 h-screen bg-gray-800 border-r-2 border-indigo-800
                 transform transition-all duration-300 ease-in-out shadow-2xl 
                 ${isOpen ? 'translate-x-0' : '-translate-x-full'}
                 lg:translate-x-0
@@ -81,7 +81,7 @@ export default function Sidebar({ isOpen, onClose }: { isOpen: boolean; onClose:
             `}>
                 <div className="flex flex-col h-full relative">
                     {/* Subtle Colorful Pattern */}
-                    <div className="absolute inset-0 opacity-2 dark:opacity-3 pointer-events-none">
+                    <div className="absolute inset-0 opacity-3 pointer-events-none">
                         <div className="w-full h-full" style={{
                             backgroundImage: `
                                 radial-gradient(circle at 20% 80%, rgba(59, 130, 246, 0.1) 0%, transparent 50%),
@@ -92,18 +92,18 @@ export default function Sidebar({ isOpen, onClose }: { isOpen: boolean; onClose:
                         }}></div>
                     </div>
                     {/* Header */}
-                    <div className="flex items-center justify-between p-4 border-b border-border">
+                    <div className="flex items-center justify-between p-4 border-b-2 border-indigo-800 bg-gradient-to-r from-indigo-900/20 to-purple-900/20">
                         <Link
                             href="/dashboard"
                             className={`flex items-center space-x-3 group ${isCollapsed ? 'lg:justify-center' : ''}`}
                             onClick={onClose}
                         >
-                            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center transform group-hover:scale-105 transition-transform duration-200 shadow-md">
+                            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 flex items-center justify-center transform group-hover:scale-110 transition-transform duration-300 shadow-lg">
                                 <PackageIcon className="w-5 h-5 text-white" />
                             </div>
                             {!isCollapsed && (
-                                <h1 className="text-lg font-bold text-foreground hidden lg:block">
-                                    Restaurant Inventory
+                                <h1 className="text-lg font-bold text-indigo-300 hidden lg:block">
+                                    My Bakery
                                 </h1>
                             )}
                         </Link>
@@ -141,12 +141,12 @@ export default function Sidebar({ isOpen, onClose }: { isOpen: boolean; onClose:
                                     href={item.href}
                                     onClick={onClose}
                                     className={`
-                                        flex items-center px-3 py-3 text-sm font-medium rounded-lg
-                                        transition-all duration-200 group relative
+                                        flex items-center px-3 py-3 text-sm font-semibold rounded-xl
+                                        transition-all duration-300 group relative
                                         ${isCollapsed ? 'lg:px-3 lg:justify-center' : 'px-4'}
                                         ${isActive(item.href)
-                                            ? 'bg-primary text-primary-foreground border border-primary'
-                                            : 'text-muted-foreground hover:text-foreground hover:bg-muted'
+                                            ? 'bg-gradient-to-r from-indigo-500 to-purple-500 text-white shadow-lg scale-105'
+                                            : 'text-gray-300 hover:text-indigo-400 hover:bg-indigo-900/20'
                                         }
                                     `}
                                     title={isCollapsed ? item.name : undefined}
@@ -165,11 +165,6 @@ export default function Sidebar({ isOpen, onClose }: { isOpen: boolean; onClose:
 
                     {/* User Section */}
                     <div className="border-t border-border p-4">
-                        {/* Theme Toggle */}
-                        <div className={`mb-4 ${isCollapsed ? 'lg:flex lg:justify-center' : ''}`}>
-                            <ThemeToggle />
-                        </div>
-
                         {/* User Menu */}
                         <div className="relative">
                             <button
@@ -186,8 +181,8 @@ export default function Sidebar({ isOpen, onClose }: { isOpen: boolean; onClose:
                                 </div>
                                 {(!isCollapsed || isMobile) && (
                                     <div className="flex-1 text-left min-w-0 ml-3">
-                                        <div className="text-sm font-medium text-foreground truncate">{user?.name}</div>
-                                        <div className="text-xs text-muted-foreground truncate">{user?.role}</div>
+                                        <div className="text-sm font-semibold text-gray-100 truncate">{user?.name}</div>
+                                        <div className="text-xs text-gray-400 truncate">{user?.role}</div>
                                     </div>
                                 )}
                                 {(!isCollapsed || isMobile) && (
@@ -199,14 +194,14 @@ export default function Sidebar({ isOpen, onClose }: { isOpen: boolean; onClose:
 
                             {/* User Dropdown */}
                             {isUserMenuOpen && (
-                                <div className={`absolute bottom-full mb-2 bg-card border border-border shadow-xl py-2 animate-scale-in z-50 ${isCollapsed ? 'lg:left-20 lg:right-auto lg:w-64' : 'left-0 right-0'}`}>
-                                    <div className="px-4 py-3 border-b border-border">
-                                        <p className="text-sm font-semibold text-foreground">{user?.name}</p>
-                                        <p className="text-xs text-muted-foreground mt-1">{user?.email}</p>
+                                <div className={`absolute bottom-full mb-2 bg-gray-800 border-2 border-gray-700 shadow-xl py-2 rounded-xl animate-scale-in z-50 ${isCollapsed ? 'lg:left-20 lg:right-auto lg:w-64' : 'left-0 right-0'}`}>
+                                    <div className="px-4 py-3 border-b-2 border-gray-700">
+                                        <p className="text-sm font-bold text-gray-100">{user?.name}</p>
+                                        <p className="text-xs text-gray-400 mt-1">{user?.email}</p>
                                     </div>
                                     <button
                                         onClick={handleLogout}
-                                        className="w-full flex items-center px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-muted transition-colors duration-200"
+                                        className="w-full flex items-center px-4 py-2 text-sm font-semibold text-red-400 hover:bg-red-900/20 transition-colors duration-200"
                                     >
                                         <LogOut className="w-4 h-4 mr-2" />
                                         Logout

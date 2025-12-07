@@ -99,9 +99,16 @@ export default function InventoryPage() {
             setShowModal(false);
             resetForm();
             fetchItems();
-        } catch (error) {
+        } catch (error: any) {
             console.error('Error:', error);
-            setSubmitError('Network error. Please try again.');
+            
+            // The apiClient throws errors with the message from the API response
+            // Check if it's a duplicate error message
+            if (error.message && error.message.includes('already exists')) {
+                setSubmitError(error.message);
+            } else {
+                setSubmitError(error.message || 'Network error. Please try again.');
+            }
         }
     };
 
@@ -158,6 +165,11 @@ export default function InventoryPage() {
         item.name.toLowerCase().includes(searchQuery.toLowerCase())
     );
 
+    // Reset to page 1 when search query or filter changes
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [searchQuery, filterLowStock]);
+
     const unitOptions = [
         { value: 'Kg', label: 'Kg' },
         { value: 'Liter', label: 'Liter' },
@@ -173,28 +185,28 @@ export default function InventoryPage() {
             key: 'name',
             header: 'Name',
             render: (item: InventoryItem) => (
-                <span className="font-medium text-foreground">{item.name}</span>
+                <span className="font-semibold text-gray-100">{item.name}</span>
             ),
         },
         {
             key: 'currentStock',
             header: 'Current Stock',
             render: (item: InventoryItem) => (
-                <span className="text-foreground">{item.currentStock}</span>
+                <span className="text-gray-100 font-medium">{item.currentStock}</span>
             ),
         },
         {
             key: 'thresholdValue',
             header: 'Threshold',
             render: (item: InventoryItem) => (
-                <span className="text-foreground">{item.thresholdValue}</span>
+                <span className="text-gray-100 font-medium">{item.thresholdValue}</span>
             ),
         },
         {
             key: 'unit',
             header: 'Unit',
             render: (item: InventoryItem) => (
-                <span className="text-muted-foreground">{item.unit}</span>
+                <span className="text-gray-300 font-medium">{item.unit}</span>
             ),
         },
         {
@@ -202,12 +214,12 @@ export default function InventoryPage() {
             header: 'Status',
             render: (item: InventoryItem) => (
                 isLowStock(item) ? (
-                    <span className="px-2 inline-flex items-center text-xs leading-5 font-semibold rounded-full bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-200">
+                    <span className="px-2 inline-flex items-center text-xs leading-5 font-semibold rounded-full bg-red-900/30 text-red-200">
                         <AlertTriangle className="w-3 h-3 mr-1" />
                         Low Stock
                     </span>
                 ) : (
-                    <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200">
+                    <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-900/30 text-green-200">
                         In Stock
                     </span>
                 )
@@ -250,10 +262,10 @@ export default function InventoryPage() {
                     <div className="mb-8 animate-slide-up">
                         <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
                             <div>
-                                <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent mb-2">
+                                <h1 className="text-4xl font-bold text-indigo-300 mb-2">
                                     Inventory Management
                                 </h1>
-                                <p className="text-muted-foreground">Manage your inventory items and stock levels</p>
+                                <p className="text-gray-400 font-medium">Manage your inventory items and stock levels</p>
                             </div>
                             <PremiumButton
                                 onClick={() => {
@@ -283,7 +295,7 @@ export default function InventoryPage() {
                                     onChange={(e) => setFilterLowStock(e.target.checked)}
                                     className="rounded border-border text-primary focus:ring-primary"
                                 />
-                                <span className="text-sm text-foreground">Show only low stock</span>
+                                <span className="text-sm text-gray-300 font-medium">Show only low stock</span>
                             </label>
                         </div>
                     </div>
@@ -310,6 +322,15 @@ export default function InventoryPage() {
                             columns={columns}
                             keyExtractor={(item) => item._id}
                             emptyMessage="No inventory items found. Add your first item to get started."
+                            enablePagination={true}
+                            currentPage={currentPage}
+                            itemsPerPage={itemsPerPage}
+                            onPageChange={setCurrentPage}
+                            onItemsPerPageChange={(newItemsPerPage) => {
+                                setItemsPerPage(newItemsPerPage);
+                                setCurrentPage(1);
+                            }}
+                            showItemsPerPage={true}
                         />
                     )}
 
@@ -325,8 +346,8 @@ export default function InventoryPage() {
                 >
                     <form onSubmit={handleSubmit} className="space-y-4">
                         {submitError && (
-                            <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4 mb-4">
-                                <p className="text-red-600 dark:text-red-400 text-sm font-medium">
+                            <div className="bg-red-900/20 border border-red-800 rounded-lg p-4 mb-4">
+                                <p className="text-red-400 text-sm font-medium">
                                     {submitError}
                                 </p>
                             </div>

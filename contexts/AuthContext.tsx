@@ -3,7 +3,6 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
 import { apiClient } from '@/lib/auth/apiClient';
-import { verifyAccessToken } from '@/lib/auth/jwt';
 
 interface User {
     id: string;
@@ -58,9 +57,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     useEffect(() => {
         const loadTokens = async () => {
             try {
-        const storedAccessToken = localStorage.getItem('accessToken');
-        const storedRefreshToken = localStorage.getItem('refreshToken');
-        const storedUser = localStorage.getItem('user');
+                const storedAccessToken = localStorage.getItem('accessToken');
+                const storedRefreshToken = localStorage.getItem('refreshToken');
+                const storedUser = localStorage.getItem('user');
 
                 console.log('Loading tokens from localStorage:', {
                     hasAccessToken: !!storedAccessToken,
@@ -68,19 +67,61 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
                     hasUser: !!storedUser
                 });
 
-                // Always try to load tokens if they exist, even if expired
-                // The API client will handle refresh automatically
+                // If we have tokens, restore session immediately and verify with backend
                 if (storedAccessToken && storedRefreshToken && storedUser) {
                     try {
-                        console.log('Setting tokens from localStorage');
-                        console.log('Access token exists:', !!storedAccessToken);
-                        console.log('Refresh token exists:', !!storedRefreshToken);
-                        console.log('User data exists:', !!storedUser);
+                        // Restore session immediately for better UX
+                        console.log('Restoring session from localStorage');
+                        setAccessToken(storedAccessToken);
+                        setRefreshToken(storedRefreshToken);
+                        setUser(JSON.parse(storedUser));
+                        
+                        // Verify user session with backend in the background
+                        // If token is expired, API client will handle refresh automatically
+                        fetch('/api/auth/me', {
+                            method: 'GET',
+                            headers: {
+                                'Authorization': `Bearer ${storedAccessToken}`,
+                            },
+                        })
+                        .then(async (response) => {
+                            if (response.ok) {
+                                const data = await response.json();
+                                // Update user data from server
+                                setUser(data.user);
+                                localStorage.setItem('user', JSON.stringify(data.user));
+                                console.log('User session verified with backend');
+                            } else if (response.status === 401) {
+                                // Access token expired, try to refresh
+                                console.log('Access token expired, attempting refresh');
+                                const refreshResponse = await fetch('/api/auth/refresh', {
+                                    method: 'POST',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify({ refreshToken: storedRefreshToken }),
+                                });
 
-            setAccessToken(storedAccessToken);
-            setRefreshToken(storedRefreshToken);
-            setUser(JSON.parse(storedUser));
-                        console.log('Tokens successfully loaded from localStorage');
+                                if (refreshResponse.ok) {
+                                    const refreshData = await refreshResponse.json();
+                                    setAccessToken(refreshData.accessToken);
+                                    localStorage.setItem('accessToken', refreshData.accessToken);
+                                    console.log('Token refreshed successfully');
+                                } else {
+                                    // Refresh failed, clear tokens
+                                    console.error('Token refresh failed, clearing session');
+                                    setUser(null);
+                                    setAccessToken(null);
+                                    setRefreshToken(null);
+                                    localStorage.removeItem('accessToken');
+                                    localStorage.removeItem('refreshToken');
+                                    localStorage.removeItem('user');
+                                }
+                            }
+                        })
+                        .catch((error) => {
+                            // Network error or other issue - don't clear session
+                            // The API client will handle token refresh on next request
+                            console.error('Error verifying session (non-critical):', error);
+                        });
                     } catch (parseError) {
                         console.error('Error parsing stored user data:', parseError);
                         // Clear corrupted data
@@ -90,9 +131,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
                     }
                 } else {
                     console.log('No stored tokens found in localStorage');
-                    console.log('Access token:', !!storedAccessToken);
-                    console.log('Refresh token:', !!storedRefreshToken);
-                    console.log('User:', !!storedUser);
                 }
             } catch (error) {
                 console.error('Error loading tokens from localStorage:', error);
@@ -100,9 +138,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
                 localStorage.removeItem('accessToken');
                 localStorage.removeItem('refreshToken');
                 localStorage.removeItem('user');
-        }
-
-        setIsLoading(false);
+            } finally {
+                setIsLoading(false);
+            }
         };
 
         loadTokens();

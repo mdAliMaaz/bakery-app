@@ -52,6 +52,20 @@ async function putHandler(
       return NextResponse.json({ error: "Item not found" }, { status: 404 });
     }
 
+    // Check if name is being changed and if new name already exists (case-insensitive)
+    if (name !== undefined && name.trim().toLowerCase() !== item.name.toLowerCase()) {
+      const existingItem = await InventoryItem.findOne({
+        _id: { $ne: id },
+        name: { $regex: new RegExp(`^${name.trim()}$`, 'i') }
+      });
+      if (existingItem) {
+        return NextResponse.json(
+          { error: `Item "${existingItem.name}" already exists. Please use a different name.` },
+          { status: 409 }
+        );
+      }
+    }
+
     // Update fields
     if (name !== undefined) item.name = name.trim();
     if (unit !== undefined) item.unit = unit;

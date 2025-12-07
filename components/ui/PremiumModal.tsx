@@ -62,26 +62,26 @@ export default function PremiumModal({
             onClick={handleBackdropClick}
             className="fixed inset-0 z-50 flex items-center justify-center p-4 animate-fade-in"
             style={{
-                backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                backgroundColor: 'rgba(0, 0, 0, 0.7)',
             }}
         >
             <div
                 ref={modalRef}
                 onClick={(e) => e.stopPropagation()}
-                className={`relative w-full ${sizeClasses[size]} shadow-2xl animate-scale-in border border-border overflow-hidden`}
+                className={`relative w-full ${sizeClasses[size]} shadow-2xl animate-scale-in border-2 border-indigo-800 overflow-hidden rounded-2xl`}
                 style={{
                     maxHeight: '90vh',
                     display: 'flex',
                     flexDirection: 'column',
                     backgroundColor: 'var(--card)',
-                    boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
+                    boxShadow: '0 25px 50px -12px rgba(99, 102, 241, 0.25), 0 0 0 1px rgba(99, 102, 241, 0.1)',
                 }}
             >
 
                 <div className="relative z-10 flex flex-col h-full">
                     {title && (
-                        <div className="px-4 py-3 border-b border-border" style={{ backgroundColor: 'var(--muted)' }}>
-                            <h2 className="text-lg font-semibold" style={{ color: 'var(--card-foreground)' }}>{title}</h2>
+                        <div className="px-6 py-4 border-b-2 border-indigo-800 bg-gradient-to-r from-indigo-900/30 to-purple-900/30">
+                            <h2 className="text-xl font-bold text-indigo-300">{title}</h2>
                         </div>
                     )}
 
@@ -97,10 +97,9 @@ export default function PremiumModal({
                     )}
 
                     <div
-                        className="relative overflow-visible flex-1 p-4"
+                        className="relative overflow-visible flex-1 p-6 bg-gray-800"
                         style={{
                             maxHeight: 'calc(90vh - 70px)',
-                            color: 'var(--card-foreground)',
                         }}
                     >
                         {children}

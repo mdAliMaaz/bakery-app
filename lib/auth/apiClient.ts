@@ -87,13 +87,17 @@ class ApiClient {
         url: string,
         options: RequestInit = {}
     ): Promise<T> {
-        // If we don't have an access token, we can't make authenticated requests
+        // If we don't have an access token, try to get it from localStorage
         if (!this.accessToken) {
-            console.log('No access token available for request to:', url);
-            if (this.onLogout) {
-                this.onLogout();
+            const storedToken = localStorage.getItem('accessToken');
+            if (storedToken) {
+                console.log('Access token not in memory, loading from localStorage');
+                this.accessToken = storedToken;
+            } else {
+                console.log('No access token available for request to:', url);
+                // Don't logout immediately - might be loading
+                throw new Error('No access token available');
             }
-            throw new Error('No access token available');
         }
 
         const headers = new Headers(options.headers);

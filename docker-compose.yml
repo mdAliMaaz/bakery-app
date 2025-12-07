@@ -1,6 +1,6 @@
 services:
   mongodb:
-    image: mongo:7
+    image: mongo:latest
     container_name: restaurant-mongodb
     restart: unless-stopped
     ports:

@@ -39,8 +39,8 @@ const PremiumInput = forwardRef<HTMLInputElement, PremiumInputProps>(
                 pointer-events-none
                 z-10
                 ${showLabelUp
-                                    ? 'top-2 text-xs font-medium text-primary'
-                                    : 'top-1/2 -translate-y-1/2 text-sm text-muted-foreground'
+                                    ? 'top-2 text-xs font-medium text-indigo-400'
+                                    : 'top-1/2 -translate-y-1/2 text-sm text-gray-400'
                                 }
               `}
                         >
@@ -56,18 +56,20 @@ const PremiumInput = forwardRef<HTMLInputElement, PremiumInputProps>(
               ${leftIcon ? 'pl-10' : ''}
               ${rightIcon ? 'pr-10' : ''}
               ${label && showLabelUp ? 'pt-6 pb-2' : 'py-3'}
-              bg-input
-              border
-              ${error ? 'border-red-500' : isFocused ? 'border-primary' : 'border-border'}
-              rounded-lg
-              text-foreground
-              ${label ? 'placeholder:text-transparent' : 'placeholder:text-muted-foreground'}
+              bg-gray-800
+              border-2
+              ${error ? 'border-red-500' : isFocused ? 'border-indigo-500' : 'border-gray-600'}
+              rounded-xl
+              text-gray-100
+              font-medium
+              ${label ? 'placeholder:text-transparent' : 'placeholder:text-gray-500'}
               transition-all
-              duration-200
+              duration-300
               focus:outline-none
-              focus:ring-2
-              ${error ? 'focus:ring-red-500' : 'focus:ring-primary'}
-              focus:ring-offset-2
+              focus:ring-4
+              ${error ? 'focus:ring-red-500/20' : 'focus:ring-indigo-500/20'}
+              focus:border-indigo-500
+              hover:border-indigo-400
               ${className}
             `}
                         placeholder={label ? (showLabelUp ? '' : placeholder) : placeholder}

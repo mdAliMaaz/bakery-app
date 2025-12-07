@@ -14,6 +14,9 @@ import {
 } from "@/lib/auth/middleware";
 
 // Helper function to calculate total ingredients from order items
+// This calculates proportionally based on recipe's standardQuantity
+// Example: Recipe needs 10 mangos for 2 cakes, order is for 1 cake
+// Calculation: (10 / 2) * 1 = 5 mangos
 async function calculateTotalIngredients(items: any[]) {
   const ingredientMap = new Map();
 
@@ -26,10 +29,17 @@ async function calculateTotalIngredients(items: any[]) {
       throw new Error(`Recipe not found: ${item.recipe}`);
     }
 
-    // Calculate ingredients for this recipe quantity
+    // Get the recipe's standard quantity (e.g., 2 cakes)
+    const standardQuantity = recipe.standardQuantity || 1;
+
+    // Calculate ingredients proportionally based on order quantity
+    // Formula: (ingredient.quantity / recipe.standardQuantity) * order.quantity
     for (const ingredient of recipe.ingredients) {
       const key = ingredient.inventoryItem._id.toString();
-      const totalQuantity = ingredient.quantity * item.quantity;
+      
+      // Calculate proportional quantity per unit, then multiply by order quantity
+      const quantityPerUnit = ingredient.quantity / standardQuantity;
+      const totalQuantity = quantityPerUnit * item.quantity;
 
       if (ingredientMap.has(key)) {
         ingredientMap.get(key).quantity += totalQuantity;

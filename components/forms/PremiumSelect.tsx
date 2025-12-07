@@ -34,19 +34,20 @@ const PremiumSelect = forwardRef<HTMLSelectElement, PremiumSelectProps>(
               px-4
               ${leftIcon ? 'pl-10' : ''}
               py-3
-              bg-input
-              border
-              ${error ? 'border-red-500' : 'border-border'}
-              rounded-lg
-              text-foreground
+              bg-gray-800
+              border-2
+              ${error ? 'border-red-500' : 'border-gray-600'}
+              rounded-xl
+              text-gray-100
+              font-medium
               appearance-none
               cursor-pointer
               transition-all
-              duration-200
+              duration-300
               focus:outline-none
-              focus:ring-2
-              ${error ? 'focus:ring-red-500' : 'focus:ring-primary'}
-              focus:ring-offset-2
+              focus:ring-4
+              ${error ? 'focus:ring-red-500/20 focus:border-red-500' : 'focus:ring-indigo-500/20 focus:border-indigo-500'}
+              hover:border-indigo-400
               ${className}
             `}
                         {...props}

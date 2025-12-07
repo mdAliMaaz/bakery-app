@@ -49,11 +49,13 @@ async function postHandler(req: AuthenticatedRequest) {
       );
     }
 
-    // Check if recipe already exists
-    const existingRecipe = await Recipe.findOne({ name: name.trim() });
+    // Check if recipe already exists (case-insensitive)
+    const existingRecipe = await Recipe.findOne({
+      name: { $regex: new RegExp(`^${name.trim()}$`, 'i') }
+    });
     if (existingRecipe) {
       return NextResponse.json(
-        { error: 'Recipe with this name already exists' },
+        { error: `Recipe "${existingRecipe.name}" already exists. Please use a different name.` },
         { status: 409 }
       );
     }

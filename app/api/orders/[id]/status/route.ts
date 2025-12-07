@@ -9,11 +9,12 @@ import {
   TransactionType,
 } from "@/lib/mongodb/models";
 import { authorize, AuthenticatedRequest } from "@/lib/auth/middleware";
+import { ObjectId } from "mongodb";
 
 // POST update order status
 async function postHandler(
   req: AuthenticatedRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     await connectDB();
@@ -24,7 +25,7 @@ async function postHandler(
     if (!status) {
       return NextResponse.json(
         { error: "Status is required" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -65,7 +66,7 @@ async function postHandler(
         if (!item) {
           return NextResponse.json(
             { error: `Inventory item not found: ${inventoryItemId}` },
-            { status: 404 }
+            { status: 404 },
           );
         }
 
@@ -74,7 +75,7 @@ async function postHandler(
             {
               error: `Insufficient stock for ${item.name}. Required: ${ingredient.quantity}, Available: ${item.currentStock}`,
             },
-            { status: 400 }
+            { status: 400 },
           );
         }
       }
@@ -110,10 +111,15 @@ async function postHandler(
     }
 
     // Handle finished goods updates based on status
-    if (status === OrderStatus.READY_FOR_DISPATCH && order.status !== OrderStatus.READY_FOR_DISPATCH) {
+    if (
+      status === OrderStatus.READY_FOR_DISPATCH &&
+      order.status !== OrderStatus.READY_FOR_DISPATCH
+    ) {
       // Add to finished goods when order is ready for dispatch
       for (const item of order.items) {
-        const finishedGoodsItem = await FinishedGoods.findOne({ recipe: item.recipe });
+        const finishedGoodsItem = await FinishedGoods.findOne({
+          recipe: item.recipe,
+        });
         if (finishedGoodsItem) {
           finishedGoodsItem.currentStock += item.quantity;
           finishedGoodsItem.lastProducedDate = new Date();
@@ -122,24 +128,32 @@ async function postHandler(
             quantity: item.quantity,
             date: new Date(),
             orderId: order._id,
-            updatedBy: req.user!.userId,
+            updatedBy: new ObjectId(req.user!.userId),
             notes: `Produced for order ${order.orderNumber}`,
           });
           await finishedGoodsItem.save();
         }
       }
-    } else if (status === OrderStatus.DELIVERED && order.status !== OrderStatus.DELIVERED) {
+    } else if (
+      status === OrderStatus.DELIVERED &&
+      order.status !== OrderStatus.DELIVERED
+    ) {
       // Deduct from finished goods when order is delivered
       for (const item of order.items) {
-        const finishedGoodsItem = await FinishedGoods.findOne({ recipe: item.recipe });
-        if (finishedGoodsItem && finishedGoodsItem.currentStock >= item.quantity) {
+        const finishedGoodsItem = await FinishedGoods.findOne({
+          recipe: item.recipe,
+        });
+        if (
+          finishedGoodsItem &&
+          finishedGoodsItem.currentStock >= item.quantity
+        ) {
           finishedGoodsItem.currentStock -= item.quantity;
           finishedGoodsItem.stockHistory.push({
             transactionType: TransactionType.SOLD,
             quantity: -item.quantity,
             date: new Date(),
             orderId: order._id,
-            updatedBy: req.user!.userId,
+            updatedBy: new ObjectId(req.user!.userId),
             notes: `Sold via order ${order.orderNumber}`,
           });
           await finishedGoodsItem.save();
@@ -152,7 +166,7 @@ async function postHandler(
     order.statusHistory.push({
       status,
       timestamp: new Date(),
-      updatedBy: req.user!.userId as any,
+      updatedBy: new ObjectId(req.user!.userId),
       notes: notes || undefined,
     });
 
@@ -172,7 +186,7 @@ async function postHandler(
     console.error("Update order status error:", error);
     return NextResponse.json(
       { error: "Failed to update order status", details: error.message },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

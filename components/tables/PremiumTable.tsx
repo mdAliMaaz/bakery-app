@@ -27,7 +27,7 @@ export default function PremiumTable<T extends Record<string, any>>({
     className = '',
 }: PremiumTableProps<T>) {
     return (
-        <div className={`bg-card border border-border rounded-xl overflow-hidden shadow-md ${className}`}>
+        <div className={`bg-card border border-border/50 rounded-2xl overflow-hidden shadow-lg backdrop-blur-sm ${className}`}>
             <div className="overflow-x-auto">
                 <table className="min-w-full divide-y divide-border">
                     <thead className="bg-muted">
@@ -55,7 +55,7 @@ export default function PremiumTable<T extends Record<string, any>>({
                                     key={keyExtractor(item)}
                                     onClick={() => onRowClick?.(item)}
                                     className={`
-                    hover:bg-muted/50
+                    hover:bg-muted
                     transition-colors
                     duration-200
                     ${onRowClick ? 'cursor-pointer' : ''}

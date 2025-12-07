@@ -16,11 +16,10 @@ import {
     ResponsiveContainer,
 } from 'recharts';
 import PremiumChartContainer from './PremiumChartContainer';
-import { formatINR } from '@/lib/utils/currency';
 
 interface SalesChartsProps {
-    salesData: Array<{ _id: string; count: number; revenue?: number }>;
-    salesByRecipe?: Array<{ recipe: string; count: number; revenue?: number }>;
+    salesData: Array<{ _id: string; count: number }>;
+    salesByRecipe?: Array<{ recipe: string; count: number }>;
     period?: 'daily' | 'weekly' | 'monthly';
 }
 
@@ -29,11 +28,10 @@ export default function SalesCharts({ salesData, salesByRecipe, period = 'daily'
         return salesData.map((item) => ({
             date: new Date(item._id).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
             orders: item.count,
-            revenue: item.revenue ?? 0,
         }));
     }, [salesData]);
 
-    const salesByRecipeData = useMemo(() => {
+    const salesByRecipeData = useMemo(() => { 
         if (!salesByRecipe || salesByRecipe.length === 0) return [];
         return salesByRecipe
             .sort((a, b) => b.count - a.count)
@@ -41,50 +39,44 @@ export default function SalesCharts({ salesData, salesByRecipe, period = 'daily'
             .map((item) => ({
                 name: item.recipe.length > 15 ? item.recipe.substring(0, 15) + '...' : item.recipe,
                 orders: item.count,
-                revenue: item.revenue ?? 0,
             }));
     }, [salesByRecipe]);
 
     return (
         <div className="space-y-6">
-            {/* Sales Revenue Trends */}
+            {/* Order Volume Trends */}
             <PremiumChartContainer
-                title="Sales Revenue Trends"
-                description={`Revenue over the last ${period === 'daily' ? '30 days' : period === 'weekly' ? '12 weeks' : '12 months'}`}
+                title="Order Volume Trends"
+                description={`Order count over the last ${period === 'daily' ? '30 days' : period === 'weekly' ? '12 weeks' : '12 months'}`}
             >
                 <ResponsiveContainer width="100%" height={300}>
-                    <AreaChart data={salesTrendData}>
-                        <defs>
-                            <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
-                                <stop offset="5%" stopColor="#10b981" stopOpacity={0.8} />
-                                <stop offset="95%" stopColor="#10b981" stopOpacity={0} />
-                            </linearGradient>
-                        </defs>
-                        <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
-                        <XAxis dataKey="date" stroke="var(--muted-foreground)" />
-                        <YAxis stroke="var(--muted-foreground)" />
-                        <Tooltip
-                            contentStyle={{
-                                backgroundColor: 'var(--card)',
-                                border: '1px solid var(--border)',
-                                borderRadius: '8px',
-                            }}
-                            formatter={(value, name, props) =>
-                                props?.dataKey === 'revenue'
-                                    ? [formatINR(Number(value)), 'Revenue']
-                                    : [value, name]
-                            }
-                        />
-                        <Legend />
-                        <Area
-                            type="monotone"
-                            dataKey="revenue"
-                            stroke="#10b981"
-                            fillOpacity={1}
-                            fill="url(#colorRevenue)"
-                            name="Revenue (₹)"
-                        />
-                    </AreaChart>
+                <AreaChart data={salesTrendData}>
+                    <defs>
+                        <linearGradient id="colorOrders" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="5%" stopColor="#6366f1" stopOpacity={0.8} />
+                            <stop offset="95%" stopColor="#6366f1" stopOpacity={0} />
+                        </linearGradient>
+                    </defs>
+                    <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
+                    <XAxis dataKey="date" stroke="var(--muted-foreground)" />
+                    <YAxis stroke="var(--muted-foreground)" />
+                    <Tooltip
+                        contentStyle={{
+                            backgroundColor: 'var(--card)',
+                            border: '1px solid var(--border)',
+                            borderRadius: '8px',
+                        }}
+                    />
+                    <Legend />
+                    <Area
+                        type="monotone"
+                        dataKey="orders"
+                        stroke="#6366f1"
+                        fillOpacity={1}
+                        fill="url(#colorOrders)"
+                        name="Orders"
+                    />
+                </AreaChart>
                 </ResponsiveContainer>
             </PremiumChartContainer>
 

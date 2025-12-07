@@ -17,18 +17,15 @@ import {
     ZAxis,
 } from 'recharts';
 import PremiumChartContainer from './PremiumChartContainer';
-import { formatINR } from '@/lib/utils/currency';
 
 interface RecipeSalesChartsProps {
-    recipePerformance?: Array<{ name: string; orders: number; revenue: number }>;
+    recipePerformance?: Array<{ name: string; orders: number }>;
     recipePopularity?: Array<{ date: string; recipes: Record<string, number> }>;
-    recipeCosts?: Array<{ name: string; ingredientCost: number; revenue: number; profit: number }>;
 }
 
 export default function RecipeSalesCharts({
     recipePerformance,
     recipePopularity,
-    recipeCosts,
 }: RecipeSalesChartsProps) {
     const performanceData = useMemo(() => {
         if (!recipePerformance || recipePerformance.length === 0) return [];
@@ -38,20 +35,10 @@ export default function RecipeSalesCharts({
             .map((item) => ({
                 name: item.name.length > 15 ? item.name.substring(0, 15) + '...' : item.name,
                 orders: item.orders,
-                revenue: item.revenue,
             }));
     }, [recipePerformance]);
 
-    const profitabilityData = useMemo(() => {
-        if (!recipeCosts || recipeCosts.length === 0) return [];
-        return recipeCosts.map((item) => ({
-            name: item.name.length > 12 ? item.name.substring(0, 12) + '...' : item.name,
-            cost: item.ingredientCost,
-            revenue: item.revenue,
-            profit: item.profit,
-            profitMargin: item.revenue ? ((item.profit / item.revenue) * 100).toFixed(1) : '0.0',
-        }));
-    }, [recipeCosts]);
+    const profitabilityData: any[] = [];
 
     const popularityData = useMemo(() => {
         if (!recipePopularity || recipePopularity.length === 0) return [];
@@ -77,48 +64,10 @@ export default function RecipeSalesCharts({
             {performanceData.length > 0 && (
                 <PremiumChartContainer
                     title="Recipe Performance Ranking"
-                    description="Top recipes by order count and revenue"
+                    description="Top recipes by order count"
                 >
                     <ResponsiveContainer width="100%" height={300}>
                         <BarChart data={performanceData}>
-                            <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
-                            <XAxis
-                                dataKey="name"
-                                stroke="var(--muted-foreground)"
-                                angle={-45}
-                                textAnchor="end"
-                                height={100}
-                            />
-                            <YAxis yAxisId="left" stroke="var(--muted-foreground)" />
-                            <YAxis yAxisId="right" orientation="right" stroke="var(--muted-foreground)" />
-                            <Tooltip
-                                contentStyle={{
-                                    backgroundColor: 'var(--card)',
-                                    border: '1px solid var(--border)',
-                                    borderRadius: '8px',
-                                }}
-                                formatter={(value, name, props) =>
-                                    props?.dataKey === 'revenue'
-                                        ? [formatINR(Number(value)), 'Revenue']
-                                        : [value, name]
-                                }
-                            />
-                            <Legend />
-                            <Bar yAxisId="left" dataKey="orders" fill="#3b82f6" name="Orders" radius={[8, 8, 0, 0]} />
-                            <Bar yAxisId="right" dataKey="revenue" fill="#10b981" name="Revenue (₹)" radius={[8, 8, 0, 0]} />
-                        </BarChart>
-                    </ResponsiveContainer>
-                </PremiumChartContainer>
-            )}
-
-            {/* Recipe Profitability Analysis */}
-            {profitabilityData.length > 0 && (
-                <PremiumChartContainer
-                    title="Recipe Profitability Analysis"
-                    description="Cost vs revenue analysis for each recipe"
-                >
-                    <ResponsiveContainer width="100%" height={300}>
-                        <BarChart data={profitabilityData}>
                             <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
                             <XAxis
                                 dataKey="name"
@@ -134,20 +83,15 @@ export default function RecipeSalesCharts({
                                     border: '1px solid var(--border)',
                                     borderRadius: '8px',
                                 }}
-                                formatter={(value, name, props) =>
-                                    ['cost', 'revenue', 'profit'].includes(props?.dataKey || '')
-                                        ? [formatINR(Number(value)), name]
-                                        : [value, name]
-                                }
                             />
                             <Legend />
-                            <Bar dataKey="cost" fill="#ef4444" name="Ingredient Cost (₹)" radius={[8, 8, 0, 0]} />
-                            <Bar dataKey="revenue" fill="#10b981" name="Revenue (₹)" radius={[8, 8, 0, 0]} />
-                            <Bar dataKey="profit" fill="#f59e0b" name="Profit (₹)" radius={[8, 8, 0, 0]} />
+                            <Bar dataKey="orders" fill="#3b82f6" name="Orders" radius={[8, 8, 0, 0]} />
                         </BarChart>
                     </ResponsiveContainer>
                 </PremiumChartContainer>
             )}
+
+            {/* Profitability section removed per requirements */}
 
             {/* Recipe Popularity Trends */}
             {popularityData.length > 0 && (

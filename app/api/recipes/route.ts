@@ -32,7 +32,7 @@ async function postHandler(req: AuthenticatedRequest) {
     await connectDB();
 
     const body = await req.json();
-    const { name, description, ingredients, standardUnit, standardQuantity, unitPrice } = body;
+    const { name, description, ingredients, standardUnit, standardQuantity } = body;
 
     // Validation
     if (!name || !ingredients || !standardUnit) {
@@ -45,13 +45,6 @@ async function postHandler(req: AuthenticatedRequest) {
     if (!Array.isArray(ingredients) || ingredients.length === 0) {
       return NextResponse.json(
         { error: 'Recipe must have at least one ingredient' },
-        { status: 400 }
-      );
-    }
-
-    if (unitPrice === undefined || unitPrice === null || Number(unitPrice) < 0) {
-      return NextResponse.json(
-        { error: 'Unit price is required and must be a positive number' },
         { status: 400 }
       );
     }
@@ -71,7 +64,6 @@ async function postHandler(req: AuthenticatedRequest) {
       ingredients,
       standardUnit,
       standardQuantity: standardQuantity || 1,
-      unitPrice: Number(unitPrice),
       createdBy: req.user!.userId,
     });
 

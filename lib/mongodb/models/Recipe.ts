@@ -13,7 +13,6 @@ export interface IRecipe extends Document {
   ingredients: IRecipeIngredient[];
   standardUnit: string;
   standardQuantity: number;
-  unitPrice: number;
   createdBy: mongoose.Types.ObjectId;
   createdAt: Date;
   updatedAt: Date;
@@ -71,12 +70,6 @@ const RecipeSchema = new Schema<IRecipe>(
       required: [true, 'Standard quantity is required'],
       default: 1,
       min: 1,
-    },
-    unitPrice: {
-      type: Number,
-      required: [true, 'Unit price is required'],
-      min: 0,
-      default: 0,
     },
     createdBy: {
       type: Schema.Types.ObjectId,

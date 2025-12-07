@@ -39,40 +39,6 @@ async function calculateTotalIngredients(items: any[]) {
   return Array.from(ingredientMap.values());
 }
 
-async function buildItemsWithPricing(items: any[]) {
-  return Promise.all(
-    items.map(async (item: any) => {
-      const recipe = await Recipe.findById(item.recipe);
-
-      if (!recipe) {
-        throw new Error(`Recipe not found: ${item.recipe}`);
-      }
-
-      if (typeof recipe.unitPrice !== "number") {
-        throw new Error(
-          `Recipe ${recipe.name} is missing a unit price configuration`
-        );
-      }
-
-      const quantity = Number(item.quantity) || 0;
-      if (quantity <= 0) {
-        throw new Error("Quantity must be greater than zero");
-      }
-
-      const unitPrice = recipe.unitPrice;
-      const lineTotal = unitPrice * quantity;
-
-      return {
-        recipe: recipe._id,
-        quantity,
-        recipeName: recipe.name,
-        unitPrice,
-        lineTotal,
-      };
-    })
-  );
-}
-
 // GET single order
 async function getHandler(
   req: AuthenticatedRequest,
@@ -136,13 +102,7 @@ async function putHandler(
 
     // If items are updated, recalculate ingredients
     if (items !== undefined) {
-      const itemsWithPricing = await buildItemsWithPricing(items);
-
-      order.items = itemsWithPricing;
-      order.itemsTotal = itemsWithPricing.reduce(
-        (sum, item) => sum + item.lineTotal,
-        0
-      );
+      order.items = items;
       order.totalIngredients = await calculateTotalIngredients(items);
     }
 

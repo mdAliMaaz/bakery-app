@@ -46,38 +46,6 @@ async function calculateTotalIngredients(items: any[]) {
   return Array.from(ingredientMap.values());
 }
 
-async function buildItemsWithPricing(items: any[]) {
-  return Promise.all(
-    items.map(async (item: any) => {
-      const recipe = await Recipe.findById(item.recipe);
-      if (!recipe) {
-        throw new Error(`Recipe not found: ${item.recipe}`);
-      }
-      if (typeof recipe.unitPrice !== "number") {
-        throw new Error(
-          `Recipe ${recipe.name} is missing a unit price configuration`
-        );
-      }
-
-      const quantity = Number(item.quantity) || 0;
-      if (quantity <= 0) {
-        throw new Error("Quantity must be greater than zero");
-      }
-
-      const unitPrice = recipe.unitPrice;
-      const lineTotal = unitPrice * quantity;
-
-      return {
-        recipe: recipe._id,
-        quantity,
-        recipeName: recipe.name,
-        unitPrice,
-        lineTotal,
-      };
-    })
-  );
-}
-
 // GET all orders
 async function getHandler(req: AuthenticatedRequest) {
   try {
@@ -177,16 +145,9 @@ async function postHandler(req: AuthenticatedRequest) {
       }
     }
 
-    const itemsWithPricing = await buildItemsWithPricing(items);
-    const itemsTotal = itemsWithPricing.reduce(
-      (sum, item) => sum + item.lineTotal,
-      0
-    );
-
     const order = await Order.create({
       customer,
-      items: itemsWithPricing,
-      itemsTotal,
+      items,
       totalIngredients,
       status: OrderStatus.DRAFT,
       statusHistory: [
@@ -200,7 +161,6 @@ async function postHandler(req: AuthenticatedRequest) {
       deliveryDate: deliveryDate ? new Date(deliveryDate) : undefined,
       notes: notes || undefined,
       createdBy: req.user!.userId,
-      currency: "INR",
     });
 
     const populatedOrder = await Order.findById(order._id)

@@ -45,7 +45,6 @@ const recipeBlueprint = [
     description: "Stone-baked pizza with tomatoes, mozzarella and basil.",
     standardUnit: "Piece",
     standardQuantity: 1,
-    unitPrice: 425,
     ingredients: [
       { inventoryName: "All-Purpose Flour", quantity: 0.35, unit: "Kg" },
       { inventoryName: "Tomato Sauce", quantity: 0.2, unit: "Liter" },
@@ -59,7 +58,6 @@ const recipeBlueprint = [
     description: "Grilled chicken with salad and special sauce wrap.",
     standardUnit: "Piece",
     standardQuantity: 1,
-    unitPrice: 375,
     ingredients: [
       { inventoryName: "Boneless Chicken", quantity: 0.3, unit: "Kg" },
       { inventoryName: "Spices Mix", quantity: 15, unit: "Gram" },
@@ -72,7 +70,6 @@ const recipeBlueprint = [
     description: "Freshly baked bread with garlic butter and cheese.",
     standardUnit: "Piece",
     standardQuantity: 1,
-    unitPrice: 220,
     ingredients: [
       { inventoryName: "All-Purpose Flour", quantity: 0.25, unit: "Kg" },
       { inventoryName: "Garlic Paste", quantity: 20, unit: "Gram" },
@@ -85,7 +82,6 @@ const recipeBlueprint = [
     description: "Slow simmered Roma tomato soup with herbs.",
     standardUnit: "Liter",
     standardQuantity: 1,
-    unitPrice: 260,
     ingredients: [
       { inventoryName: "Roma Tomatoes", quantity: 1, unit: "Kg" },
       { inventoryName: "Onions", quantity: 0.2, unit: "Kg" },
@@ -168,7 +164,6 @@ async function seed() {
         .filter(Boolean),
       standardUnit: recipe.standardUnit,
       standardQuantity: recipe.standardQuantity,
-      unitPrice: recipe.unitPrice,
       createdBy: randomFrom(users)._id,
     }))
   );
@@ -217,13 +212,10 @@ async function seed() {
       const items = Array.from({ length: randomInt(1, recipes.length) }).map(() => {
         const recipe = randomFrom(recipes);
         const quantity = randomInt(1, 4);
-        const unitPrice = recipe.unitPrice || randomInt(180, 600);
         return {
           recipe: recipe._id,
           quantity,
           recipeName: recipe.name,
-          unitPrice,
-          lineTotal: unitPrice * quantity,
         };
       });
 
@@ -270,8 +262,6 @@ async function seed() {
           ? new Date(orderDate.getTime() + randomInt(30, 40) * 60 * 60 * 1000)
           : undefined;
 
-      const itemsTotal = items.reduce((sum, item) => sum + item.lineTotal, 0);
-
       ordersToCreate.push({
         customer: {
           name: randomFrom(customerNames),
@@ -281,8 +271,6 @@ async function seed() {
         },
         items,
         totalIngredients: Array.from(totalIngredientsMap.values()),
-        itemsTotal,
-        currency: "INR",
         status: latestStatus,
         statusHistory,
         orderDate,

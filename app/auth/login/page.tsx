@@ -31,11 +31,8 @@ export default function LoginPage() {
     return (
         <div className="min-h-screen flex items-center justify-center bg-background relative overflow-hidden">
             {/* Background Gradient */}
-            <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-secondary/5 to-accent/10" />
 
             {/* Decorative Elements */}
-            <div className="absolute top-0 left-0 w-96 h-96 bg-primary/5 rounded-full blur-3xl" />
-            <div className="absolute bottom-0 right-0 w-96 h-96 bg-secondary/5 rounded-full blur-3xl" />
 
             <div className="relative z-10 max-w-6xl w-full mx-auto px-4">
                 <div className="grid md:grid-cols-2 gap-8 items-center">
@@ -82,7 +79,7 @@ export default function LoginPage() {
 
                     {/* Right Side - Login Form */}
                     <div className="w-full max-w-md mx-auto animate-scale-in">
-                        <div className="bg-card border border-border rounded-2xl p-8 shadow-xl">
+                        <div className="bg-card border border-border/50 rounded-3xl p-10 shadow-2xl backdrop-blur-xl">
                             <div className="text-center mb-8">
                                 <div className="w-16 h-16 mx-auto mb-4 rounded-xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center shadow-lg">
                                     <Package className="w-8 h-8 text-white" />

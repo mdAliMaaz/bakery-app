@@ -12,12 +12,12 @@ interface PremiumButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 const variantClasses = {
-    primary: 'bg-gradient-to-r from-primary to-secondary text-primary-foreground hover:shadow-lg hover:scale-105',
-    secondary: 'bg-secondary text-secondary-foreground hover:bg-secondary/90',
-    accent: 'bg-gradient-to-r from-accent to-accent/80 text-accent-foreground hover:shadow-lg',
-    outline: 'border-2 border-primary text-primary hover:bg-primary hover:text-primary-foreground',
-    ghost: 'hover:bg-muted text-foreground',
-    danger: 'bg-red-600 text-white hover:bg-red-700',
+    primary: 'bg-primary text-primary-foreground hover:bg-primary/90 hover:shadow-lg hover:shadow-primary/25 transform hover:scale-[1.02] active:scale-[0.98]',
+    secondary: 'bg-secondary text-secondary-foreground hover:bg-secondary/90 hover:shadow-lg hover:shadow-secondary/25 transform hover:scale-[1.02] active:scale-[0.98]',
+    accent: 'bg-accent text-accent-foreground hover:bg-accent/90 hover:shadow-lg hover:shadow-accent/25 transform hover:scale-[1.02] active:scale-[0.98]',
+    outline: 'border-2 border-primary text-primary hover:bg-primary hover:text-primary-foreground hover:shadow-lg transform hover:scale-[1.02] active:scale-[0.98]',
+    ghost: 'hover:bg-muted text-foreground hover:shadow-sm transform hover:scale-[1.01] active:scale-[0.99]',
+    danger: 'bg-red-500 text-white hover:bg-red-600 hover:shadow-lg hover:shadow-red-500/25 transform hover:scale-[1.02] active:scale-[0.98]',
 };
 
 const sizeClasses = {
@@ -43,15 +43,18 @@ export default function PremiumButton({
         relative
         ${variantClasses[variant]}
         ${sizeClasses[size]}
-        font-medium
-        rounded-lg
+        font-semibold
+        rounded-xl
         transition-all
-        duration-200
+        duration-300
+        ease-out
         focus:outline-none
         focus:ring-2
-        focus:ring-primary
+        focus:ring-primary/50
         focus:ring-offset-2
         disabled:opacity-50
+        disabled:cursor-not-allowed
+        disabled:transform-none
         disabled:cursor-not-allowed
         disabled:hover:scale-100
         disabled:hover:shadow-none

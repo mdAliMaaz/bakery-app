@@ -62,38 +62,21 @@ export default function PremiumModal({
             onClick={handleBackdropClick}
             className="fixed inset-0 z-50 flex items-center justify-center p-4 animate-fade-in"
             style={{
-                backgroundColor: 'rgba(0, 0, 0, 0.6)',
-                backdropFilter: 'blur(8px)',
-                WebkitBackdropFilter: 'blur(8px)',
+                backgroundColor: 'rgba(0, 0, 0, 0.8)',
             }}
         >
             <div
                 ref={modalRef}
                 onClick={(e) => e.stopPropagation()}
-                className={`relative w-full ${sizeClasses[size]} rounded-2xl shadow-2xl animate-scale-in border border-border overflow-hidden`}
+                className={`relative w-full ${sizeClasses[size]} rounded-3xl shadow-2xl animate-scale-in border border-border/50 overflow-hidden backdrop-blur-xl`}
                 style={{
                     maxHeight: '90vh',
                     display: 'flex',
                     flexDirection: 'column',
                     backgroundColor: 'var(--card)',
-                    backdropFilter: 'blur(12px)',
-                    WebkitBackdropFilter: 'blur(12px)',
-                    boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04), 0 0 0 1px rgba(0, 0, 0, 0.05)',
+                    boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
                 }}
             >
-                {/* Subtle glass overlay for depth */}
-                <div
-                    className="absolute inset-0 rounded-2xl pointer-events-none"
-                    style={{
-                        background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%)',
-                    }}
-                />
-                <div
-                    className="dark:block hidden absolute inset-0 rounded-2xl pointer-events-none"
-                    style={{
-                        background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.03) 0%, rgba(255, 255, 255, 0.01) 100%)',
-                    }}
-                />
 
                 <div className="relative z-10 flex flex-col h-full">
                     {title && (
@@ -105,7 +88,7 @@ export default function PremiumModal({
                     {showCloseButton && (
                         <button
                             onClick={onClose}
-                            className="absolute top-4 right-4 z-20 p-2 rounded-lg bg-muted hover:bg-muted/80 text-muted-foreground hover:text-foreground transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary"
+                            className="absolute top-4 right-4 z-20 p-2 rounded-lg bg-muted hover:bg-muted text-muted-foreground hover:text-foreground transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary"
                             aria-label="Close modal"
                         >
                             <X className="w-5 h-5" />

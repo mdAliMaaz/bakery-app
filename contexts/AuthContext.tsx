@@ -2,6 +2,7 @@
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
+import { apiClient } from '@/lib/auth/apiClient';
 
 interface User {
     id: string;
@@ -17,6 +18,8 @@ interface AuthContextType {
     login: (email: string, password: string) => Promise<void>;
     register: (name: string, email: string, password: string, role?: string) => Promise<void>;
     logout: () => void;
+    refreshAccessToken: () => Promise<void>;
+    updateAccessToken: (newToken: string) => void;
     isLoading: boolean;
 }
 
@@ -40,6 +43,16 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const [refreshToken, setRefreshToken] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const router = useRouter();
+
+    // Configure API client whenever tokens change
+    useEffect(() => {
+        apiClient.configure({
+            accessToken,
+            refreshToken,
+            onTokenRefresh: updateAccessToken,
+            onLogout: logout,
+        });
+    }, [accessToken, refreshToken]);
 
     useEffect(() => {
         // Load tokens from localStorage
@@ -114,6 +127,36 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         }
     };
 
+    const updateAccessToken = (newToken: string) => {
+        setAccessToken(newToken);
+        localStorage.setItem('accessToken', newToken);
+    };
+
+    const refreshAccessToken = async () => {
+        if (!refreshToken) {
+            throw new Error('No refresh token available');
+        }
+
+        try {
+            const response = await fetch('/api/auth/refresh', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ refreshToken }),
+            });
+
+            if (!response.ok) {
+                throw new Error('Token refresh failed');
+            }
+
+            const data = await response.json();
+            updateAccessToken(data.accessToken);
+        } catch (error) {
+            // If refresh fails, logout
+            logout();
+            throw error;
+        }
+    };
+
     const logout = () => {
         setUser(null);
         setAccessToken(null);
@@ -127,7 +170,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     };
 
     return (
-        <AuthContext.Provider value={{ user, accessToken, refreshToken, login, register, logout, isLoading }}>
+        <AuthContext.Provider value={{ user, accessToken, refreshToken, login, register, logout, refreshAccessToken, updateAccessToken, isLoading }}>
             {children}
         </AuthContext.Provider>
     );

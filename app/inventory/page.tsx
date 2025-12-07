@@ -2,8 +2,9 @@
 
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
+import { useApi } from '@/hooks/useApi';
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
-import Navbar from '@/components/ui/Navbar';
+import AppLayout from '@/components/layout/AppLayout';
 import PremiumModal from '@/components/ui/PremiumModal';
 import PremiumButton from '@/components/forms/PremiumButton';
 import PremiumInput from '@/components/forms/PremiumInput';
@@ -11,6 +12,7 @@ import PremiumSelect from '@/components/forms/PremiumSelect';
 import PremiumTable from '@/components/tables/PremiumTable';
 import { TableSkeleton } from '@/components/ui/LoadingSkeleton';
 import InventoryCharts from '@/components/charts/InventoryCharts';
+import Autocomplete from '@/components/ui/Autocomplete';
 import { AlertTriangle, Plus, Search } from 'lucide-react';
 
 interface InventoryItem {
@@ -26,13 +28,16 @@ interface InventoryItem {
 
 export default function InventoryPage() {
     const { accessToken } = useAuth();
+    const api = useApi();
     const [items, setItems] = useState<InventoryItem[]>([]);
     const [loading, setLoading] = useState(true);
     const [showModal, setShowModal] = useState(false);
     const [showPurchaseModal, setShowPurchaseModal] = useState(false);
     const [selectedItem, setSelectedItem] = useState<InventoryItem | null>(null);
+    const [submitError, setSubmitError] = useState<string>('');
     const [filterLowStock, setFilterLowStock] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
+    const [nameSuggestions, setNameSuggestions] = useState<Array<{ value: string; label: string }>>([]);
 
     const [formData, setFormData] = useState({
         name: '',
@@ -51,11 +56,16 @@ export default function InventoryPage() {
     const fetchItems = async () => {
         try {
             const url = filterLowStock ? '/api/inventory?lowStock=true' : '/api/inventory';
-            const response = await fetch(url, {
-                headers: { Authorization: `Bearer ${accessToken}` },
-            });
-            const data = await response.json();
-            setItems(data.items || []);
+            const data = await api.get(url);
+            const fetchedItems = data.items || [];
+            setItems(fetchedItems);
+
+            // Update name suggestions for autocomplete
+            const suggestions = fetchedItems.map((item: any) => ({
+                value: item.name,
+                label: item.name,
+            }));
+            setNameSuggestions(suggestions);
         } catch (error) {
             console.error('Error fetching items:', error);
         } finally {
@@ -64,38 +74,30 @@ export default function InventoryPage() {
     };
 
     useEffect(() => {
-        if (accessToken) {
             fetchItems();
-        }
-    }, [accessToken, filterLowStock]);
+    }, [filterLowStock]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        setSubmitError('');
 
         try {
             const url = selectedItem ? `/api/inventory/${selectedItem._id}` : '/api/inventory';
-            const method = selectedItem ? 'PUT' : 'POST';
 
-            const response = await fetch(url, {
-                method,
-                headers: {
-                    'Content-Type': 'application/json',
-                    Authorization: `Bearer ${accessToken}`,
-                },
-                body: JSON.stringify(formData),
-            });
-
-            if (response.ok) {
-                setShowModal(false);
-                resetForm();
-                fetchItems();
+            if (selectedItem) {
+                // Update existing item
+                await api.put(url, formData);
             } else {
-                const error = await response.json();
-                alert(error.error || 'Operation failed');
+                // Create new item
+                await api.post(url, formData);
             }
+
+            setShowModal(false);
+            resetForm();
+            fetchItems();
         } catch (error) {
             console.error('Error:', error);
-            alert('Operation failed');
+            setSubmitError('Network error. Please try again.');
         }
     };
 
@@ -155,6 +157,7 @@ export default function InventoryPage() {
             openingStock: 0,
         });
         setSelectedItem(null);
+        setSubmitError('');
     };
 
     const isLowStock = (item: InventoryItem) => item.currentStock <= item.thresholdValue;
@@ -250,9 +253,7 @@ export default function InventoryPage() {
 
     return (
         <ProtectedRoute allowedRoles={['Admin', 'Staff', 'Viewer']}>
-            <div className="min-h-screen bg-background">
-                <Navbar />
-                <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+            <AppLayout>
                     {/* Header */}
                     <div className="mb-8 animate-slide-up">
                         <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
@@ -319,7 +320,6 @@ export default function InventoryPage() {
                             emptyMessage="No inventory items found. Add your first item to get started."
                         />
                     )}
-                </div>
 
                 {/* Add/Edit Modal */}
                 <PremiumModal
@@ -332,12 +332,21 @@ export default function InventoryPage() {
                     size="md"
                 >
                     <form onSubmit={handleSubmit} className="space-y-4">
-                        <PremiumInput
+                        {submitError && (
+                            <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4 mb-4">
+                                <p className="text-red-600 dark:text-red-400 text-sm font-medium">
+                                    {submitError}
+                                </p>
+                            </div>
+                        )}
+                        <Autocomplete
                             label="Name"
-                            type="text"
-                            required
+                            options={nameSuggestions}
                             value={formData.name}
-                            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                            onChange={(value) => setFormData({ ...formData, name: value })}
+                            onSelect={(option) => setFormData({ ...formData, name: option.label })}
+                            placeholder="Enter item name or search existing items..."
+                            showClearButton={true}
                         />
                         <PremiumSelect
                             label="Unit"
@@ -446,7 +455,7 @@ export default function InventoryPage() {
                         </div>
                     </form>
                 </PremiumModal>
-            </div>
+            </AppLayout>
         </ProtectedRoute>
     );
 }

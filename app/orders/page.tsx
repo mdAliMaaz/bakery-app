@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
-import Navbar from '@/components/ui/Navbar';
+import AppLayout from '@/components/layout/AppLayout';
 import PremiumModal from '@/components/ui/PremiumModal';
 import PremiumButton from '@/components/forms/PremiumButton';
 import PremiumInput from '@/components/forms/PremiumInput';
@@ -12,7 +12,6 @@ import PremiumTable from '@/components/tables/PremiumTable';
 import { TableSkeleton } from '@/components/ui/LoadingSkeleton';
 import OrderCharts from '@/components/charts/OrderCharts';
 import { Plus, X } from 'lucide-react';
-import { formatINR } from '@/lib/utils/currency';
 
 interface Order {
     _id: string;
@@ -26,8 +25,6 @@ interface Order {
     items: {
         recipe: { _id: string; name: string };
         quantity: number;
-        unitPrice: number;
-        lineTotal: number;
     }[];
     totalIngredients: {
         inventoryItem: { name: string; currentStock: number };
@@ -38,8 +35,6 @@ interface Order {
     orderDate: string;
     deliveryDate?: string;
     notes?: string;
-    itemsTotal?: number;
-    currency?: string;
 }
 
 interface Recipe {
@@ -266,15 +261,6 @@ export default function OrdersPage() {
             ),
         },
         {
-            key: 'total',
-            header: 'Total',
-            render: (order: Order) => (
-                <span className="font-semibold text-foreground">
-                    {formatINR(order.itemsTotal ?? order.items.reduce((sum, item) => sum + (item.lineTotal || 0), 0))}
-                </span>
-            ),
-        },
-        {
             key: 'orderDate',
             header: 'Order Date',
             render: (order: Order) => (
@@ -325,9 +311,7 @@ export default function OrdersPage() {
 
     return (
         <ProtectedRoute allowedRoles={['Admin', 'Staff', 'Viewer']}>
-            <div className="min-h-screen bg-background">
-                <Navbar />
-                <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+            <AppLayout>
                     {/* Header */}
                     <div className="mb-8 animate-slide-up">
                         <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
@@ -362,7 +346,7 @@ export default function OrdersPage() {
 
                     {/* Table */}
                     {loading ? (
-                        <TableSkeleton rows={5} columns={7} />
+                        <TableSkeleton rows={5} columns={6} />
                     ) : (
                         <PremiumTable
                             data={orders}
@@ -371,7 +355,6 @@ export default function OrdersPage() {
                             emptyMessage="No orders found. Create your first order to get started."
                         />
                     )}
-                </div>
 
                 {/* Create Order Modal */}
                 <PremiumModal
@@ -531,20 +514,10 @@ export default function OrdersPage() {
                                     <ul className="space-y-2">
                                         {selectedOrder.items.map((item, idx) => (
                                             <li key={idx} className="text-foreground">
-                                                {item.recipe.name} — Qty: {item.quantity} × {formatINR(item.unitPrice || 0)} ={' '}
-                                                <span className="font-semibold">{formatINR(item.lineTotal || 0)}</span>
+                                                {item.recipe.name} — Qty: {item.quantity}
                                             </li>
                                         ))}
                                     </ul>
-                                    <div className="border-t border-border mt-4 pt-2 flex justify-between text-sm text-foreground">
-                                        <span className="font-semibold">Order Total</span>
-                                        <span className="font-semibold">
-                                            {formatINR(
-                                                selectedOrder.itemsTotal ??
-                                                selectedOrder.items.reduce((sum, item) => sum + (item.lineTotal || 0), 0)
-                                            )}
-                                        </span>
-                                    </div>
                                 </div>
                             </div>
 
@@ -629,7 +602,7 @@ export default function OrdersPage() {
                         </div>
                     </form>
                 </PremiumModal>
-            </div>
+            </AppLayout>
         </ProtectedRoute>
     );
 }

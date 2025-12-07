@@ -5,22 +5,22 @@
    ============================================ */
 
 :root {
-  /* Light Theme Colors */
-  --background: #ffffff;
-  --foreground: #0f172a;
+  /* Light Theme Colors - Modern Palette */
+  --background: #fafbfc;
+  --foreground: #1e293b;
   --card: #ffffff;
-  --card-foreground: #0f172a;
-  --primary: #1e40af;
+  --card-foreground: #1e293b;
+  --primary: #6366f1;
   --primary-foreground: #ffffff;
-  --secondary: #6366f1;
+  --secondary: #ec4899;
   --secondary-foreground: #ffffff;
-  --accent: #f59e0b;
+  --accent: #06b6d4;
   --accent-foreground: #ffffff;
-  --muted: #f1f5f9;
+  --muted: #f8fafc;
   --muted-foreground: #64748b;
   --border: #e2e8f0;
-  --input: #f8fafc;
-  --ring: #3b82f6;
+  --input: #ffffff;
+  --ring: #6366f1;
 
   /* Premium Gradients */
   --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -29,25 +29,22 @@
   --gradient-gold: linear-gradient(135deg, #f6d365 0%, #fda085 100%);
   --gradient-dark: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
 
-  /* Shadow System */
-  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-  --shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
-    0 2px 4px -2px rgba(0, 0, 0, 0.1);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1),
-    0 4px 6px -4px rgba(0, 0, 0, 0.1);
-  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1),
-    0 8px 10px -6px rgba(0, 0, 0, 0.1);
-  --shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-  --shadow-premium: 0 20px 60px rgba(0, 0, 0, 0.15);
+  /* Shadow System - Modern & Subtle */
+  --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.08);
+  --shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.06), 0 1px 3px -1px rgba(0, 0, 0, 0.1);
+  --shadow-md: 0 8px 16px -4px rgba(0, 0, 0, 0.08), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --shadow-lg: 0 16px 32px -8px rgba(0, 0, 0, 0.1), 0 8px 16px -4px rgba(0, 0, 0, 0.06);
+  --shadow-xl: 0 24px 48px -12px rgba(0, 0, 0, 0.12), 0 12px 24px -6px rgba(0, 0, 0, 0.08);
+  --shadow-2xl: 0 32px 64px -16px rgba(0, 0, 0, 0.14);
+  --shadow-premium: 0 0 40px rgba(99, 102, 241, 0.15);
 
-  /* Border Radius */
-  --radius-sm: 0.375rem;
-  --radius: 0.5rem;
-  --radius-md: 0.75rem;
-  --radius-lg: 1rem;
-  --radius-xl: 1.5rem;
-  --radius-2xl: 2rem;
+  /* Border Radius - More Modern */
+  --radius-sm: 0.5rem;
+  --radius: 0.75rem;
+  --radius-md: 1rem;
+  --radius-lg: 1.25rem;
+  --radius-xl: 1.75rem;
+  --radius-2xl: 2.5rem;
   --radius-full: 9999px;
 
   /* Spacing Scale */
@@ -61,22 +58,22 @@
 }
 
 [data-theme="dark"] {
-  /* Dark Theme Colors */
+  /* Dark Theme Colors - Modern Palette */
   --background: #0f172a;
-  --foreground: #f8fafc;
+  --foreground: #f1f5f9;
   --card: #1e293b;
-  --card-foreground: #f8fafc;
-  --primary: #3b82f6;
+  --card-foreground: #f1f5f9;
+  --primary: #6366f1;
   --primary-foreground: #ffffff;
-  --secondary: #818cf8;
+  --secondary: #ec4899;
   --secondary-foreground: #ffffff;
-  --accent: #fbbf24;
-  --accent-foreground: #0f172a;
-  --muted: #1e293b;
+  --accent: #06b6d4;
+  --accent-foreground: #ffffff;
+  --muted: #334155;
   --muted-foreground: #94a3b8;
-  --border: #334155;
+  --border: #475569;
   --input: #1e293b;
-  --ring: #60a5fa;
+  --ring: #6366f1;
 
   /* Dark Theme Gradients */
   --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -248,25 +245,6 @@ h3 {
   animation: scaleIn 0.3s ease-out;
 }
 
-/* ============================================
-   GLASSMORPHISM EFFECTS
-   ============================================ */
-
-.glass {
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(226, 232, 240, 0.8);
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
-    0 2px 4px -2px rgba(0, 0, 0, 0.1);
-}
-
-[data-theme="dark"] .glass {
-  background: rgba(30, 41, 59, 0.95);
-  border: 1px solid rgba(51, 65, 85, 0.8);
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3),
-    0 2px 4px -2px rgba(0, 0, 0, 0.2);
-}
 
 /* ============================================
    PREMIUM INPUT STYLING

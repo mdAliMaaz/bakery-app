@@ -92,7 +92,6 @@ async function getHandler(req: AuthenticatedRequest) {
             $dateToString: { format: "%Y-%m-%d", date: "$orderDate" },
           },
           count: { $sum: 1 },
-          revenue: { $sum: { $ifNull: ["$itemsTotal", 0] } },
         },
       },
       {
@@ -136,7 +135,6 @@ async function getHandler(req: AuthenticatedRequest) {
         $group: {
           _id: "$items.recipe",
           count: { $sum: "$items.quantity" },
-          revenue: { $sum: { $ifNull: ["$items.lineTotal", 0] } },
         },
       },
       {
@@ -152,7 +150,6 @@ async function getHandler(req: AuthenticatedRequest) {
         $project: {
           recipe: "$recipe.name",
           count: 1,
-          revenue: 1,
         },
       },
       { $sort: { count: -1 } },
@@ -217,7 +214,6 @@ async function getHandler(req: AuthenticatedRequest) {
         $group: {
           _id: "$items.recipe",
           orders: { $sum: "$items.quantity" },
-          revenue: { $sum: { $ifNull: ["$items.lineTotal", 0] } },
         },
       },
       {
@@ -233,7 +229,6 @@ async function getHandler(req: AuthenticatedRequest) {
         $project: {
           name: "$recipe.name",
           orders: 1,
-          revenue: 1,
         },
       },
       { $sort: { orders: -1 } },
@@ -274,7 +269,6 @@ async function getHandler(req: AuthenticatedRequest) {
         salesByRecipe: salesByRecipe.map((s) => ({
           recipe: s.recipe,
           count: s.count,
-          revenue: s.revenue,
         })),
       },
       recipes: {

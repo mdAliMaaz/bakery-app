@@ -2,8 +2,9 @@
 
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
+import { useApi } from '@/hooks/useApi';
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
-import Navbar from '@/components/ui/Navbar';
+import AppLayout from '@/components/layout/AppLayout';
 import LoadingSkeleton, { CardSkeleton } from '@/components/ui/LoadingSkeleton';
 import PremiumButton from '@/components/forms/PremiumButton';
 import InventoryCharts from '@/components/charts/InventoryCharts';
@@ -44,6 +45,7 @@ interface DashboardStats {
 
 export default function DashboardPage() {
     const { accessToken, user } = useAuth();
+    const api = useApi();
     const [stats, setStats] = useState<DashboardStats | null>(null);
     const [loading, setLoading] = useState(true);
     const [period, setPeriod] = useState('daily');
@@ -52,10 +54,7 @@ export default function DashboardPage() {
 
     const fetchStats = async () => {
         try {
-            const response = await fetch(`/api/dashboard/stats?period=${period}`, {
-                headers: { Authorization: `Bearer ${accessToken}` },
-            });
-            const data = await response.json();
+            const data = await api.get(`/api/dashboard/stats?period=${period}`);
             setStats(data);
         } catch (error) {
             console.error('Error fetching stats:', error);
@@ -65,15 +64,11 @@ export default function DashboardPage() {
     };
 
     useEffect(() => {
-        if (accessToken) {
             fetchStats();
-        }
-    }, [accessToken, period]);
+    }, [period]);
 
     // SSE Connection for real-time updates
     useEffect(() => {
-        if (!accessToken) return;
-
         const eventSource = new EventSource(`/api/sse`, {
             withCredentials: false,
         });
@@ -106,7 +101,7 @@ export default function DashboardPage() {
             eventSource.close();
             setSseStatus('disconnected');
         };
-    }, [accessToken]);
+    }, []);
 
     const exportToCSV = (data: any[], filename: string) => {
         if (data.length === 0) {
@@ -153,17 +148,14 @@ export default function DashboardPage() {
     if (loading) {
         return (
             <ProtectedRoute allowedRoles={['Admin', 'Staff', 'Viewer']}>
-                <div className="min-h-screen bg-background">
-                    <Navbar />
-                    <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+                <AppLayout>
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
                             {[1, 2, 3, 4].map((i) => (
                                 <CardSkeleton key={i} />
                             ))}
                         </div>
                         <LoadingSkeleton variant="rectangular" height="400px" />
-                    </div>
-                </div>
+                </AppLayout>
             </ProtectedRoute>
         );
     }
@@ -171,12 +163,11 @@ export default function DashboardPage() {
     if (!stats) {
         return (
             <ProtectedRoute allowedRoles={['Admin', 'Staff', 'Viewer']}>
-                <div className="min-h-screen bg-background">
-                    <Navbar />
+                <AppLayout>
                     <div className="flex items-center justify-center h-96">
                         <p className="text-muted-foreground">Failed to load dashboard data</p>
                     </div>
-                </div>
+                </AppLayout>
             </ProtectedRoute>
         );
     }
@@ -191,9 +182,7 @@ export default function DashboardPage() {
 
     return (
         <ProtectedRoute allowedRoles={['Admin', 'Staff', 'Viewer']}>
-            <div className="min-h-screen bg-background">
-                <Navbar />
-                <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+            <AppLayout>
                     {/* Hero Section */}
                     <div className="mb-8 animate-slide-up">
                         <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
@@ -228,7 +217,7 @@ export default function DashboardPage() {
 
                         {/* Summary Cards */}
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                            <div className="bg-card border border-border rounded-xl p-6 shadow-md hover:shadow-lg transition-all duration-300 transform hover:scale-105">
+                            <div className="bg-card border border-border/50 rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-500 transform hover:scale-[1.02] hover:-translate-y-1">
                                 <div className="flex items-center justify-between mb-2">
                                     <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">Total Inventory</h3>
                                     <Package className="w-6 h-6 text-primary" />
@@ -237,7 +226,7 @@ export default function DashboardPage() {
                                 <p className="text-xs text-muted-foreground mt-2">Items in stock</p>
                             </div>
 
-                            <div className="bg-card border border-border rounded-xl p-6 shadow-md hover:shadow-lg transition-all duration-300 transform hover:scale-105">
+                            <div className="bg-card border border-border/50 rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-500 transform hover:scale-[1.02] hover:-translate-y-1">
                                 <div className="flex items-center justify-between mb-2">
                                     <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">Low Stock</h3>
                                     <AlertTriangle className="w-6 h-6 text-red-600 dark:text-red-400" />
@@ -246,7 +235,7 @@ export default function DashboardPage() {
                                 <p className="text-xs text-muted-foreground mt-2">Items need attention</p>
                             </div>
 
-                            <div className="bg-card border border-border rounded-xl p-6 shadow-md hover:shadow-lg transition-all duration-300 transform hover:scale-105">
+                            <div className="bg-card border border-border/50 rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-500 transform hover:scale-[1.02] hover:-translate-y-1">
                                 <div className="flex items-center justify-between mb-2">
                                     <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">Total Orders</h3>
                                     <FileText className="w-6 h-6 text-secondary" />
@@ -255,7 +244,7 @@ export default function DashboardPage() {
                                 <p className="text-xs text-muted-foreground mt-2">All time orders</p>
                             </div>
 
-                            <div className="bg-card border border-border rounded-xl p-6 shadow-md hover:shadow-lg transition-all duration-300 transform hover:scale-105">
+                            <div className="bg-card border border-border/50 rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-500 transform hover:scale-[1.02] hover:-translate-y-1">
                                 <div className="flex items-center justify-between mb-2">
                                     <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">Completed ({period})</h3>
                                     <CheckCircle2 className="w-6 h-6 text-green-600 dark:text-green-400" />
@@ -296,7 +285,7 @@ export default function DashboardPage() {
                         {activeTab === 'overview' && (
                             <div className="space-y-6">
                                 {/* Sales Trend Chart */}
-                                <div className="bg-card border border-border rounded-xl p-6 shadow-md">
+                                <div className="bg-card border border-border/50 rounded-2xl p-8 shadow-lg">
                                     <h3 className="text-lg font-semibold text-foreground mb-4">Sales Trend (Last 30 Days)</h3>
                                     <SalesCharts
                                         salesData={stats.trends.sales}
@@ -306,7 +295,7 @@ export default function DashboardPage() {
                                 </div>
 
                                 {/* Orders by Status */}
-                                <div className="bg-card border border-border rounded-xl p-6 shadow-md">
+                                <div className="bg-card border border-border/50 rounded-2xl p-8 shadow-lg">
                                     <h3 className="text-lg font-semibold text-foreground mb-4">Orders by Status</h3>
                                     <OrderCharts
                                         ordersByStatus={stats.orders.byStatus}
@@ -350,7 +339,7 @@ export default function DashboardPage() {
                                 )}
 
                                 {/* Recent Orders */}
-                                <div className="bg-card border border-border rounded-xl p-6 shadow-md">
+                                <div className="bg-card border border-border/50 rounded-2xl p-8 shadow-lg">
                                     <div className="flex justify-between items-center mb-4">
                                         <h3 className="text-lg font-semibold text-foreground">Recent Orders</h3>
                                         <PremiumButton
@@ -373,11 +362,11 @@ export default function DashboardPage() {
                                             </thead>
                                             <tbody className="bg-card divide-y divide-border">
                                                 {stats.orders.recent.map((order) => (
-                                                    <tr key={order._id} className="hover:bg-muted/50 transition-colors">
+                                                    <tr key={order._id} className="hover:bg-muted transition-colors">
                                                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-foreground">{order.orderNumber}</td>
                                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-foreground">{order.customer.name}</td>
                                                         <td className="px-6 py-4 whitespace-nowrap">
-                                                            <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-primary/10 text-primary">
+                                                            <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-primary text-primary-foreground">
                                                                 {order.status}
                                                             </span>
                                                         </td>
@@ -422,8 +411,7 @@ export default function DashboardPage() {
                             />
                         )}
                     </div>
-                </div>
-            </div>
+                </AppLayout>
         </ProtectedRoute>
     );
 }

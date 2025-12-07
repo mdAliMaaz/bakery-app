@@ -14,8 +14,6 @@ export interface IOrderItem {
   recipe: mongoose.Types.ObjectId;
   quantity: number;
   recipeName?: string;
-  unitPrice: number;
-  lineTotal: number;
 }
 
 export interface ICustomerDetails {
@@ -47,8 +45,6 @@ export interface IOrder extends Document {
   orderDate: Date;
   deliveryDate?: Date;
   notes?: string;
-  itemsTotal: number;
-  currency?: string;
   createdBy: mongoose.Types.ObjectId;
   createdAt: Date;
   updatedAt: Date;
@@ -68,16 +64,6 @@ const OrderItemSchema = new Schema<IOrderItem>(
     },
     recipeName: {
       type: String,
-    },
-    unitPrice: {
-      type: Number,
-      required: true,
-      min: 0,
-    },
-    lineTotal: {
-      type: Number,
-      required: true,
-      min: 0,
     },
   },
   { _id: false }
@@ -178,18 +164,6 @@ const OrderSchema = new Schema<IOrder>(
     },
     notes: {
       type: String,
-      trim: true,
-    },
-    itemsTotal: {
-      type: Number,
-      required: true,
-      min: 0,
-      default: 0,
-    },
-    currency: {
-      type: String,
-      default: "INR",
-      uppercase: true,
       trim: true,
     },
     createdBy: {

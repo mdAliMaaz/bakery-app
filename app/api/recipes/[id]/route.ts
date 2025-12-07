@@ -49,7 +49,6 @@ async function putHandler(
       ingredients,
       standardUnit,
       standardQuantity,
-      unitPrice,
     } = body;
 
     const { id } = await params;
@@ -66,15 +65,6 @@ async function putHandler(
     if (standardUnit !== undefined) recipe.standardUnit = standardUnit;
     if (standardQuantity !== undefined)
       recipe.standardQuantity = standardQuantity;
-    if (unitPrice !== undefined) {
-      if (Number(unitPrice) < 0) {
-        return NextResponse.json(
-          { error: "Unit price must be a positive number" },
-          { status: 400 }
-        );
-      }
-      recipe.unitPrice = Number(unitPrice);
-    }
 
     await recipe.save();
 
